@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1" />
+
+  <!-- 字体 -->
+  <link href="https://lf-code-agent.coze.cn/obj/x-ai-cn/fonts/google/google-all-fonts.css" rel="stylesheet"/>
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 === */
+      --color-primary:              #6366F1;
+      --color-primary-container:    #4338CA;
+      --color-on-primary:           #ffffff;
+      /* === 背景 / 表面（深色科技风） === */
+      --color-background:                 #0F172A;
+      --color-surface-container-lowest:   #1E293B;
+      --color-surface:                    #1E293B;
+      --color-surface-container:          #334155;
+      --color-surface-container-high:     #475569;
+      --color-surface-container-highest:  #64748B;
+      /* === 文字 === */
+      --color-on-surface:           #F8FAFC;
+      --color-on-surface-variant:   #94A3B8;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #ef4444;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #475569;
+      --color-outline-variant:  #334155;
+      /* === 圆角 === */
+      --radius-sm:   0.5rem;
+      --radius-md:   0.75rem;
+      --radius-lg:   1rem;
+      --radius-xl:   1.25rem;
+      --radius-2xl:  1.5rem;
+      --radius-full: 9999px;
+      /* === 阴影（深色模式用发光效果） === */
+      --shadow-card:   0 4px 12px rgba(99,102,241,0.15);
+      --shadow-float:  0 10px 25px rgba(99,102,241,0.2);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.5);
+      /* === 字体 === */
+      --font-sans: "Space Grotesk", system-ui, sans-serif;
+    }
+  </style>
+
+  <style>
+    body {
+      min-height: max(812px, 100dvh);
+      font-family: system-ui, sans-serif;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%231E293B"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%2394A3B8" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans flex flex-col">
+
+  <!-- 顶部导航栏 -->
+  <header class="bg-background sticky top-0 z-40 h-14 flex items-center px-4 gap-3">
+    <!-- 返回按钮 -->
+    <button id="btn-back" class="w-10 h-10 flex items-center justify-center text-on-surface-variant rounded-full hover:bg-surface-container active:bg-surface-container-high transition-colors flex-shrink-0" aria-label="返回">
+      <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    </button>
+
+    <!-- 中间：服务端名称 + 在线人数 -->
+    <div class="flex-1 min-w-0">
+      <h1 class="text-base font-semibold text-on-surface truncate leading-tight">飞机上的聊天室</h1>
+      <button id="btn-online-users" class="text-xs text-primary font-medium leading-tight mt-0.5 flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+        <span class="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></span>
+        <span>12人在线</span>
+      </button>
+    </div>
+
+    <!-- 更多菜单 -->
+    <div class="relative flex-shrink-0">
+      <button id="btn-more" class="w-10 h-10 flex items-center justify-center text-on-surface-variant rounded-full hover:bg-surface-container active:bg-surface-container-high transition-colors" aria-label="更多菜单">
+        <i data-lucide="ellipsis-vertical" class="w-5 h-5"></i>
+      </button>
+      <!-- 下拉菜单 -->
+      <div id="more-menu" class="hidden absolute right-0 top-full mt-1 z-50 bg-surface-container rounded-xl shadow-float py-1.5 w-44">
+        <button id="btn-disguise-toggle" class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-on-surface hover:bg-surface-container-high transition-colors">
+          <i data-lucide="shield" class="w-4 h-4 text-primary"></i>
+          <span class="flex-1 text-left">伪装模式</span>
+          <span class="text-xs text-on-surface-variant">关</span>
+        </button>
+        <div class="h-px bg-outline-variant/10 mx-3 my-1"></div>
+        <button id="btn-disconnect" class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-error hover:bg-surface-container-high transition-colors">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          <span>断开连接</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 消息列表区域 -->
+  <main id="message-list" class="flex-1 overflow-y-auto py-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
+
+    <!-- 系统消息-1：用户加入 -->
+    <div class="flex justify-center py-2">
+      <span class="text-xs text-on-surface-variant/70 bg-surface-container/50 px-3 py-1 rounded-full">小明加入了聊天室</span>
+    </div>
+
+    <!-- 系统消息-2：用户加入 -->
+    <div class="flex justify-center py-1">
+      <span class="text-xs text-on-surface-variant/70 bg-surface-container/50 px-3 py-1 rounded-full">小红加入了聊天室</span>
+    </div>
+
+    <!-- 消息-小明-1：普通消息（他人，左侧） -->
+    <div class="flex gap-2.5 px-4 py-1.5" data-msg-id="msg-1">
+      <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+        <span class="text-xs font-bold text-blue-400">明</span>
+      </div>
+      <div class="max-w-[75%]">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-medium text-on-surface-variant">小明</span>
+          <span class="text-xs text-on-surface-variant/50">14:30</span>
+        </div>
+        <div class="bg-surface-container rounded-xl rounded-tl-sm px-3 py-2.5">
+          <p class="text-sm text-on-surface leading-relaxed">大家好！刚连上WiFi，信号好弱</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 消息-小红-1：含@提及（他人，左侧） -->
+    <div class="flex gap-2.5 px-4 py-1.5" data-msg-id="msg-2">
+      <div class="w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+        <span class="text-xs font-bold text-rose-400">红</span>
+      </div>
+      <div class="max-w-[75%]">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-medium text-on-surface-variant">小红</span>
+          <span class="text-xs text-on-surface-variant/50">14:31</span>
+        </div>
+        <div class="bg-surface-container rounded-xl rounded-tl-sm px-3 py-2.5">
+          <p class="text-sm text-on-surface leading-relaxed"><span class="text-primary font-semibold">@小明</span> 欢迎欢迎！你也是坐飞机的吗？</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 消息-自己-1：普通消息（自己，右侧） -->
+    <div class="flex gap-2.5 px-4 py-1.5 justify-end" data-msg-id="msg-3">
+      <div class="max-w-[75%]">
+        <div class="flex items-center gap-2 mb-1 justify-end">
+          <span class="text-xs text-on-surface-variant/50">14:33</span>
+        </div>
+        <div class="bg-primary rounded-xl rounded-tr-sm px-3 py-2.5">
+          <p class="text-sm text-on-primary leading-relaxed">哈哈 大家好，这网络确实有点慢</p>
+        </div>
+      </div>
+      <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+        <span class="text-xs font-bold text-on-primary">初</span>
+      </div>
+    </div>
+
+    <!-- 消息-小明-2：引用回复（他人，左侧） -->
+    <div class="flex gap-2.5 px-4 py-1.5" data-msg-id="msg-4">
+      <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+        <span class="text-xs font-bold text-blue-400">明</span>
+      </div>
+      <div class="max-w-[75%]">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-medium text-on-surface-variant">小明</span>
+          <span class="text-xs text-on-surface-variant/50">14:35</span>
+        </div>
+        <!-- 引用回复预览 -->
+        <div class="bg-surface-container-high/30 rounded-lg px-2.5 py-1.5 mb-1.5 border-l-2 border-primary/40">
+          <p class="text-xs text-on-surface-variant/70 truncate">小初: 这网络确实有点慢</p>
+        </div>
+        <div class="bg-surface-container rounded-xl rounded-tl-sm px-3 py-2.5">
+          <p class="text-sm text-on-surface leading-relaxed">确实有点慢，不过能聊天就行</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 消息-自己-2：含@提及（自己，右侧） -->
+    <div class="flex gap-2.5 px-4 py-1.5 justify-end" data-msg-id="msg-5">
+      <div class="max-w-[75%]">
+        <div class="flex items-center gap-2 mb-1 justify-end">
+          <span class="text-xs text-on-surface-variant/50">14:36</span>
+        </div>
+        <div class="bg-primary rounded-xl rounded-tr-sm px-3 py-2.5">
+          <p class="text-sm text-on-primary leading-relaxed"><span class="font-semibold bg-white/15 rounded px-0.5">@小红</span> 是的 出差回来</p>
+        </div>
+      </div>
+      <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+        <span class="text-xs font-bold text-on-primary">初</span>
+      </div>
+    </div>
+
+    <!-- 消息-小李-1：普通消息（他人，左侧） -->
+    <div class="flex gap-2.5 px-4 py-1.5" data-msg-id="msg-6">
+      <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+        <span class="text-xs font-bold text-emerald-400">李</span>
+      </div>
+      <div class="max-w-[75%]">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-medium text-on-surface-variant">小李</span>
+          <span class="text-xs text-on-surface-variant/50">14:38</span>
+        </div>
+        <div class="bg-surface-container rounded-xl rounded-tl-sm px-3 py-2.5">
+          <p class="text-sm text-on-surface leading-relaxed">这个聊天工具挺有意思的，不用流量就能聊天</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 底部输入区域 -->
+  <div id="input-area" class="fixed bottom-0 left-0 right-0 z-30 bg-background border-t border-outline-variant/10">
+    <!-- 引用回复预览条 -->
+    <div id="reply-preview" class="flex items-center px-4 py-2 bg-surface-container/30">
+      <div class="flex-1 min-w-0 flex items-center gap-2">
+        <i data-lucide="reply" class="w-3.5 h-3.5 text-primary flex-shrink-0"></i>
+        <span class="text-xs text-on-surface-variant truncate">回复 <span class="text-primary font-medium">小明</span>: 今晚吃什么？</span>
+      </div>
+      <button id="btn-cancel-reply" class="w-7 h-7 flex items-center justify-center text-on-surface-variant rounded-full hover:bg-surface-container transition-colors flex-shrink-0" aria-label="取消回复">
+        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
+    <!-- 输入行 -->
+    <div class="flex items-center gap-2 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+      <input id="msg-input" class="flex-1 bg-surface-container border-none rounded-xl px-4 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="输入消息..." />
+      <button id="btn-disguise" class="w-10 h-10 flex items-center justify-center text-on-surface-variant rounded-full bg-surface-container hover:bg-surface-container-high transition-colors" aria-label="伪装模式">
+        <i data-lucide="shield-off" class="w-5 h-5"></i>
+      </button>
+      <button id="btn-send" class="w-10 h-10 flex items-center justify-center text-on-primary rounded-full bg-primary hover:opacity-90 active:scale-[0.95] transition-all" aria-label="发送">
+        <i data-lucide="send" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- 侧边栏：在线用户列表 -->
+  <div id="sidebar-overlay" class="fixed inset-0 z-50 hidden">
+    <!-- 背景遮罩 -->
+    <div id="sidebar-backdrop" class="absolute inset-0 bg-black/50 opacity-0 transition-opacity duration-300"></div>
+    <!-- 侧边栏面板 -->
+    <div id="sidebar-panel" class="absolute right-0 top-0 bottom-0 w-[80%] max-w-[300px] bg-surface shadow-dialog overflow-y-auto translate-x-full transition-transform duration-300 ease-out">
+      <!-- 侧边栏头部 -->
+      <div class="flex items-center justify-between px-4 py-3.5 border-b border-outline-variant/10">
+        <h2 class="text-base font-semibold text-on-surface">在线用户 (12)</h2>
+        <button id="btn-close-sidebar" class="w-8 h-8 flex items-center justify-center text-on-surface-variant rounded-full hover:bg-surface-container transition-colors" aria-label="关闭">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <!-- 用户列表 -->
+      <div class="py-2">
+        <!-- 用户-小初（自己/房主） -->
+        <div class="flex items-center gap-3 px-4 py-2.5 bg-surface-container/30">
+          <div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <span class="text-sm font-bold text-on-primary">初</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="text-sm font-medium text-on-surface">小初</span>
+              <span class="text-xs text-primary font-medium">(我)</span>
+            </div>
+          </div>
+          <i data-lucide="crown" class="w-4 h-4 text-primary flex-shrink-0"></i>
+        </div>
+
+        <!-- 用户-小明 -->
+        <button class="user-item w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container active:bg-surface-container-high transition-colors" data-user-id="user-2" data-user-name="小明">
+          <div class="w-9 h-9 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+            <span class="text-sm font-bold text-blue-400">明</span>
+          </div>
+          <span class="text-sm font-medium text-on-surface flex-1 text-left">小明</span>
+          <i data-lucide="message-circle" class="w-4 h-4 text-on-surface-variant/40"></i>
+        </button>
+
+        <!-- 用户-小红 -->
+        <button class="user-item w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container active:bg-surface-container-high transition-colors" data-user-id="user-3" data-user-name="小红">
+          <div class="w-9 h-9 rounded-full bg-rose-500/20 flex items-center justify-center flex-shrink-0">
+            <span class="text-sm font-bold text-rose-400">红</span>
+          </div>
+          <span class="text-sm font-medium text-on-surface flex-1 text-left">小红</span>
+          <i data-lucide="message-circle" class="w-4 h-4 text-on-surface-variant/40"></i>
+        </button>
+
+        <!-- 用户-小李 -->
+        <button class="user-item w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container active:bg-surface-container-high transition-colors" data-user-id="user-4" data-user-name="小李">
+          <div class="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+            <span class="text-sm font-bold text-emerald-400">李</span>
+          </div>
+          <span class="text-sm font-medium text-on-surface flex-1 text-left">小李</span>
+          <i data-lucide="message-circle" class="w-4 h-4 text-on-surface-variant/40"></i>
+        </button>
+
+        <!-- 用户-小张 -->
+        <button class="user-item w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container active:bg-surface-container-high transition-colors" data-user-id="user-5" data-user-name="小张">
+          <div class="w-9 h-9 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+            <span class="text-sm font-bold text-amber-400">张</span>
+          </div>
+          <span class="text-sm font-medium text-on-surface flex-1 text-left">小张</span>
+          <i data-lucide="message-circle" class="w-4 h-4 text-on-surface-variant/40"></i>
+        </button>
+
+        <!-- 用户-小王 -->
+        <button class="user-item w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container active:bg-surface-container-high transition-colors" data-user-id="user-6" data-user-name="小王">
+          <div class="w-9 h-9 rounded-full bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+            <span class="text-sm font-bold text-cyan-400">王</span>
+          </div>
+          <span class="text-sm font-medium text-on-surface flex-1 text-left">小王</span>
+          <i data-lucide="message-circle" class="w-4 h-4 text-on-surface-variant/40"></i>
+        </button>
+
+        <!-- 用户-小陈 -->
+        <button class="user-item w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container active:bg-surface-container-high transition-colors" data-user-id="user-7" data-user-name="小陈">
+          <div class="w-9 h-9 rounded-full bg-violet-500/20 flex items-center justify-center flex-shrink-0">
+            <span class="text-sm font-bold text-violet-400">陈</span>
+          </div>
+          <span class="text-sm font-medium text-on-surface flex-1 text-left">小陈</span>
+          <i data-lucide="message-circle" class="w-4 h-4 text-on-surface-variant/40"></i>
+        </button>
+
+        <!-- 用户-小刘 -->
+        <button class="user-item w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container active:bg-surface-container-high transition-colors" data-user-id="user-8" data-user-name="小刘">
+          <div class="w-9 h-9 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0">
+            <span class="text-sm font-bold text-pink-400">刘</span>
+          </div>
+          <span class="text-sm font-medium text-on-surface flex-1 text-left">小刘</span>
+          <i data-lucide="message-circle" class="w-4 h-4 text-on-surface-variant/40"></i>
+        </button>
+
+        <!-- 用户-小赵 -->
+        <button class="user-item w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container active:bg-surface-container-high transition-colors" data-user-id="user-9" data-user-name="小赵">
+          <div class="w-9 h-9 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0">
+            <span class="text-sm font-bold text-teal-400">赵</span>
+          </div>
+          <span class="text-sm font-medium text-on-surface flex-1 text-left">小赵</span>
+          <i data-lucide="message-circle" class="w-4 h-4 text-on-surface-variant/40"></i>
+        </button>
+
+        <!-- 用户-小周 -->
+        <button class="user-item w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container active:bg-surface-container-high transition-colors" data-user-id="user-10" data-user-name="小周">
+          <div class="w-9 h-9 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+            <span class="text-sm font-bold text-orange-400">周</span>
+          </div>
+          <span class="text-sm font-medium text-on-surface flex-1 text-left">小周</span>
+          <i data-lucide="message-circle" class="w-4 h-4 text-on-surface-variant/40"></i>
+        </button>
+
+        <!-- 用户-小吴 -->
+        <button class="user-item w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container active:bg-surface-container-high transition-colors" data-user-id="user-11" data-user-name="小吴">
+          <div class="w-9 h-9 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+            <span class="text-sm font-bold text-green-400">吴</span>
+          </div>
+          <span class="text-sm font-medium text-on-surface flex-1 text-left">小吴</span>
+          <i data-lucide="message-circle" class="w-4 h-4 text-on-surface-variant/40"></i>
+        </button>
+
+        <!-- 用户-小孙 -->
+        <button class="user-item w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container active:bg-surface-container-high transition-colors" data-user-id="user-12" data-user-name="小孙">
+          <div class="w-9 h-9 rounded-full bg-sky-500/20 flex items-center justify-center flex-shrink-0">
+            <span class="text-sm font-bold text-sky-400">孙</span>
+          </div>
+          <span class="text-sm font-medium text-on-surface flex-1 text-left">小孙</span>
+          <i data-lucide="message-circle" class="w-4 h-4 text-on-surface-variant/40"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部弹窗：私聊界面 -->
+  <div id="private-chat-sheet" class="fixed inset-0 z-50 hidden">
+    <!-- 背景遮罩 -->
+    <div id="private-chat-backdrop" class="absolute inset-0 bg-black/50 opacity-0 transition-opacity duration-300"></div>
+    <!-- 弹窗面板 -->
+    <div id="private-chat-panel" class="absolute bottom-0 left-0 right-0 bg-surface rounded-t-2xl max-h-[75vh] flex flex-col translate-y-full transition-transform duration-300 ease-out shadow-dialog">
+      <!-- 私聊头部 -->
+      <div class="flex items-center justify-between px-4 py-3 border-b border-outline-variant/10 flex-shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-full bg-blue-500/20 flex items-center justify-center">
+            <span class="text-xs font-bold text-blue-400">明</span>
+          </div>
+          <h3 id="private-chat-name" class="text-sm font-semibold text-on-surface">小明</h3>
+          <span class="text-xs text-on-surface-variant/50">私聊</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <button id="btn-block-user" class="flex items-center gap-1 text-xs text-error px-2 py-1.5 rounded-lg hover:bg-error/10 transition-colors">
+            <i data-lucide="ban" class="w-3.5 h-3.5"></i>
+            <span>拉黑</span>
+          </button>
+          <button id="btn-close-private-chat" class="w-8 h-8 flex items-center justify-center text-on-surface-variant rounded-full hover:bg-surface-container transition-colors" aria-label="关闭私聊">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 私聊消息列表 -->
+      <div id="private-msg-list" class="flex-1 overflow-y-auto px-4 py-3 min-h-[200px]">
+        <!-- 私聊消息-小明-1 -->
+        <div class="flex gap-2 py-1.5">
+          <div class="w-7 h-7 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span class="text-[10px] font-bold text-blue-400">明</span>
+          </div>
+          <div class="max-w-[75%]">
+            <div class="bg-surface-container rounded-xl rounded-tl-sm px-3 py-2">
+              <p class="text-sm text-on-surface leading-relaxed">在吗？</p>
+            </div>
+            <span class="text-[10px] text-on-surface-variant/50 mt-0.5 block">14:40</span>
+          </div>
+        </div>
+
+        <!-- 私聊消息-自己-1 -->
+        <div class="flex gap-2 py-1.5 justify-end">
+          <div class="max-w-[75%]">
+            <div class="bg-primary rounded-xl rounded-tr-sm px-3 py-2">
+              <p class="text-sm text-on-primary leading-relaxed">在的，怎么了？</p>
+            </div>
+            <span class="text-[10px] text-on-surface-variant/50 mt-0.5 block text-right">14:41</span>
+          </div>
+          <div class="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span class="text-[10px] font-bold text-on-primary">初</span>
+          </div>
+        </div>
+
+        <!-- 私聊消息-小明-2 -->
+        <div class="flex gap-2 py-1.5">
+          <div class="w-7 h-7 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span class="text-[10px] font-bold text-blue-400">明</span>
+          </div>
+          <div class="max-w-[75%]">
+            <div class="bg-surface-container rounded-xl rounded-tl-sm px-3 py-2">
+              <p class="text-sm text-on-surface leading-relaxed">没事，就是想试试私聊功能</p>
+            </div>
+            <span class="text-[10px] text-on-surface-variant/50 mt-0.5 block">14:42</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 私聊输入区域 -->
+      <div class="flex items-center gap-2 px-4 py-3 border-t border-outline-variant/10 flex-shrink-0 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+        <input id="private-msg-input" class="flex-1 bg-surface-container border-none rounded-xl px-4 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="输入私聊消息..." />
+        <button id="btn-send-private" class="w-9 h-9 flex items-center justify-center text-on-primary rounded-full bg-primary hover:opacity-90 active:scale-[0.95] transition-all" aria-label="发送私聊">
+          <i data-lucide="send" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === 导航辅助函数 ===
+    function navPush(route) {
+      console.log('[原型演示] PUSH 到: ' + route);
+      window.location.href = route;
+    }
+    function navReplace(route) {
+      console.log('[原型演示] REPLACE 为: ' + route);
+      window.location.replace(route);
+    }
+    function navReset(route) {
+      console.log('[原型演示] RESET 到: ' + route);
+      window.location.href = route;
+    }
+    function navBack() {
+      console.log('[原型演示] BACK 返回上一页');
+      if (window.history.length > 1) window.history.back();
+    }
+
+    $(function() {
+      // 消息列表滚动到底部
+      var $main = $('#message-list');
+      if ($main.length) {
+        $main.scrollTop($main[0].scrollHeight);
+      }
+
+      // 私聊消息列表滚动到底部
+      var $privateMsgList = $('#private-msg-list');
+      if ($privateMsgList.length) {
+        $privateMsgList.scrollTop($privateMsgList[0].scrollHeight);
+      }
+
+      // === 返回按钮 ===
+      $('#btn-back').on('click', function() {
+        navReset('home.html');
+      });
+
+      // === 在线人数 → 打开侧边栏 ===
+      $('#btn-online-users').on('click', function() {
+        openSidebar();
+      });
+
+      // === 更多菜单 ===
+      $('#btn-more').on('click', function(e) {
+        e.stopPropagation();
+        $('#more-menu').toggleClass('hidden');
+      });
+
+      // 点击其他地方关闭更多菜单
+      $(document).on('click', function(e) {
+        if (!$(e.target).closest('#btn-more, #more-menu').length) {
+          $('#more-menu').addClass('hidden');
+        }
+      });
+
+      // 伪装模式切换
+      $('#btn-disguise-toggle').on('click', function() {
+        // 伪装模式切换 - 应实现以下完整交互：
+        // 1. 在"关"、"天气预报"、"代码日志"、"购物清单"、"系统日志"之间循环切换
+        // 2. 更新菜单中的当前模式标签
+        // 3. 更新输入区域伪装按钮的图标（cloud/code/shopping-cart/terminal/shield-off）
+        // 4. 开启伪装后，消息列表中的消息以伪装格式显示
+        // 5. 发送消息时，先将消息内容伪装编码再加密发送
+        console.log('切换伪装模式');
+        $('#more-menu').addClass('hidden');
+      });
+
+      // 断开连接
+      $('#btn-disconnect').on('click', function() {
+        console.log('断开连接，返回首页');
+        navReset('home.html');
+      });
+
+      // === 取消引用回复 ===
+      $('#btn-cancel-reply').on('click', function() {
+        $('#reply-preview').addClass('hidden');
+      });
+
+      // === 发送消息 ===
+      $('#btn-send').on('click', function() {
+        // 发送消息 - 应实现以下完整交互：
+        // 1. 获取输入框中的消息内容
+        // 2. 如果有引用回复，将引用信息附加到消息中
+        // 3. 对消息进行 AES 加密（使用共享密钥）
+        // 4. 如果开启伪装模式，先进行伪装编码
+        // 5. 通过 WebSocket 发送加密后的消息
+        // 6. 将消息添加到本地消息列表并持久化到 AsyncStorage
+        // 7. 清空输入框，隐藏引用回复预览条
+        // 8. 消息列表滚动到底部
+        var msg = $('#msg-input').val();
+        if (msg && msg.trim()) {
+          console.log('发送消息:', msg);
+          $('#msg-input').val('');
+        }
+      });
+
+      // 输入框回车发送
+      $('#msg-input').on('keypress', function(e) {
+        if (e.which === 13) {
+          $('#btn-send').trigger('click');
+        }
+      });
+
+      // === 伪装模式按钮（输入区域） ===
+      $('#btn-disguise').on('click', function() {
+        // 伪装模式快捷切换 - 应实现以下完整交互：
+        // 1. 在"关"、"天气预报"、"代码日志"、"购物清单"、"系统日志"之间循环切换
+        // 2. 更新按钮图标以反映当前模式
+        // 3. 开启伪装后，消息列表中的消息以伪装格式显示
+        console.log('切换伪装模式（快捷按钮）');
+      });
+
+      // === 侧边栏交互 ===
+      function openSidebar() {
+        $('#sidebar-overlay').removeClass('hidden');
+        setTimeout(function() {
+          $('#sidebar-backdrop').removeClass('opacity-0').addClass('opacity-100');
+          $('#sidebar-panel').removeClass('translate-x-full').addClass('translate-x-0');
+        }, 10);
+      }
+
+      function closeSidebar() {
+        $('#sidebar-backdrop').removeClass('opacity-100').addClass('opacity-0');
+        $('#sidebar-panel').removeClass('translate-x-0').addClass('translate-x-full');
+        setTimeout(function() {
+          $('#sidebar-overlay').addClass('hidden');
+        }, 300);
+      }
+
+      $('#sidebar-backdrop').on('click', function() {
+        closeSidebar();
+      });
+
+      $('#btn-close-sidebar').on('click', function() {
+        closeSidebar();
+      });
+
+      // 点击用户发起私聊
+      $('#sidebar-panel').on('click', '.user-item', function() {
+        var userName = $(this).data('user-name');
+        var userId = $(this).data('user-id');
+        console.log('发起私聊:', userName, userId);
+        closeSidebar();
+        setTimeout(function() {
+          openPrivateChat(userName);
+        }, 350);
+      });
+
+      // === 私聊弹窗交互 ===
+      function openPrivateChat(userName) {
+        $('#private-chat-name').text(userName);
+        $('#private-chat-sheet').removeClass('hidden');
+        setTimeout(function() {
+          $('#private-chat-backdrop').removeClass('opacity-0').addClass('opacity-100');
+          $('#private-chat-panel').removeClass('translate-y-full').addClass('translate-y-0');
+        }, 10);
+      }
+
+      function closePrivateChat() {
+        $('#private-chat-backdrop').removeClass('opacity-100').addClass('opacity-0');
+        $('#private-chat-panel').removeClass('translate-y-0').addClass('translate-y-full');
+        setTimeout(function() {
+          $('#private-chat-sheet').addClass('hidden');
+        }, 300);
+      }
+
+      $('#private-chat-backdrop').on('click', function() {
+        closePrivateChat();
+      });
+
+      $('#btn-close-private-chat').on('click', function() {
+        closePrivateChat();
+      });
+
+      // 拉黑用户
+      $('#btn-block-user').on('click', function() {
+        // 拉黑用户 - 应实现以下完整交互：
+        // 1. 弹出确认对话框："确定要拉黑该用户吗？拉黑后将不再接收其私聊消息"
+        // 2. 确认后，将被拉黑用户ID存入本地 UserBlocklist
+        // 3. 关闭私聊弹窗
+        // 4. 显示提示："已拉黑该用户"
+        // 5. 后续该用户的私聊消息将被自动过滤
+        var userName = $('#private-chat-name').text();
+        console.log('拉黑用户:', userName);
+      });
+
+      // 发送私聊消息
+      $('#btn-send-private').on('click', function() {
+        // 发送私聊消息 - 应实现以下完整交互：
+        // 1. 获取输入框中的消息内容
+        // 2. 使用 ECDH 共享密钥对消息进行加密（每对用户独立密钥）
+        // 3. 通过 WebSocket 发送加密后的私聊消息（type: private）
+        // 4. 将消息添加到私聊消息列表并持久化
+        // 5. 清空输入框，消息列表滚动到底部
+        var msg = $('#private-msg-input').val();
+        if (msg && msg.trim()) {
+          console.log('发送私聊消息:', msg);
+          $('#private-msg-input').val('');
+        }
+      });
+
+      $('#private-msg-input').on('keypress', function(e) {
+        if (e.which === 13) {
+          $('#btn-send-private').trigger('click');
+        }
+      });
+
+      // === 消息长按（原型仅绑定事件入口） ===
+      // 消息长按 - 应实现以下完整交互：
+      // 1. 长按消息气泡（500ms）后弹出操作菜单
+      // 2. 操作菜单包含：复制、回复、举报
+      // 3. 点击"回复"后，在输入区域上方显示引用回复预览条
+      // 4. 预览条显示被引用消息的发送者和内容摘要
+      // 5. 发送消息时，将引用信息附加到消息中
+      // 6. 点击"复制"后，将消息文本复制到剪贴板
+      // 7. 点击"举报"后，弹出举报表单（选择原因 + 填写描述）
+      $('#message-list').on('click', '[data-msg-id]', function() {
+        console.log('点击消息:', $(this).data('msg-id'));
+      });
+    });
+  </script>
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>
