@@ -6762,7 +6762,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
-      '@babel/template': 7.28.6
+      '@babel/template': 7.29.7
 
   '@babel/plugin-transform-destructuring@7.28.5(@babel/core@7.28.6)':
     dependencies:
@@ -8618,7 +8618,7 @@ snapshots:
 
   '@vue/compiler-core@3.5.27':
     dependencies:
-      '@babel/parser': 7.28.6
+      '@babel/parser': 7.29.7
       '@vue/shared': 3.5.27
       entities: 7.0.1
       estree-walker: 2.0.2

@@ -1,0 +1,10 @@
+{
+  "serverId": "906975f7-c973-4940-9d88-d32b772211c2",
+  "serverName": "OfflineChat Server",
+  "password": null,
+  "requireApproval": false,
+  "approvalExpiryHours": null,
+  "disguiseMode": "none",
+  "sharedKey": "b514b48f0139339d39fe203b7487722e1d6f0fdde192b94df4b64c2820b7c47a",
+  "createdAt": 1782503222584
+}

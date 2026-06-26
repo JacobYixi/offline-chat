@@ -1,67 +1,215 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { Chat, Message } from './types';
+import type {
+  ChatMessage,
+  SmallGroup,
+  AppSettings,
+  NotificationSettings,
+  DiscoveredServer,
+} from './types';
+import { STORAGE_KEYS } from './types';
 
-const CHATS_KEY = '@offline_chat_chats';
-const MESSAGES_KEY = '@offline_chat_messages';
+// Avatar colors for user identification
+const AVATAR_COLORS = [
+  '#6366F1', // Indigo
+  '#EC4899', // Pink
+  '#10B981', // Emerald
+  '#F59E0B', // Amber
+  '#8B5CF6', // Violet
+  '#EF4444', // Red
+  '#06B6D4', // Cyan
+  '#84CC16', // Lime
+];
 
-// ─── Chats ───
+// ─── Device Identity ───
 
-export async function getChats(): Promise<Chat[]> {
-  const raw = await AsyncStorage.getItem(CHATS_KEY);
+export async function getDeviceId(): Promise<string | null> {
+  return AsyncStorage.getItem(STORAGE_KEYS.DEVICE_ID);
+}
+
+export async function saveDeviceId(deviceId: string): Promise<void> {
+  await AsyncStorage.setItem(STORAGE_KEYS.DEVICE_ID, deviceId);
+}
+
+export async function getDeviceSecret(): Promise<string | null> {
+  return AsyncStorage.getItem(STORAGE_KEYS.DEVICE_SECRET);
+}
+
+export async function saveDeviceSecret(secret: string): Promise<void> {
+  await AsyncStorage.setItem(STORAGE_KEYS.DEVICE_SECRET, secret);
+}
+
+// ─── App Settings ───
+
+const DEFAULT_SETTINGS: AppSettings = {
+  nickname: '',
+  theme: 'system',
+  disguiseMode: 'none',
+  notifications: {
+    soundEnabled: true,
+    vibrationEnabled: true,
+    localNotificationEnabled: true,
+    bannerEnabled: true,
+  },
+};
+
+export async function getSettings(): Promise<AppSettings> {
+  const raw = await AsyncStorage.getItem(STORAGE_KEYS.SETTINGS);
+  if (!raw) return DEFAULT_SETTINGS;
+  const settings = JSON.parse(raw) as Partial<AppSettings>;
+  return {
+    ...DEFAULT_SETTINGS,
+    ...settings,
+    notifications: {
+      ...DEFAULT_SETTINGS.notifications,
+      ...(settings.notifications || {}),
+    },
+  };
+}
+
+export async function saveSettings(settings: Partial<AppSettings>): Promise<void> {
+  const current = await getSettings();
+  const updated = { ...current, ...settings };
+  await AsyncStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updated));
+}
+
+export async function getNotificationSettings(): Promise<NotificationSettings> {
+  const settings = await getSettings();
+  return settings.notifications;
+}
+
+export async function saveNotificationSettings(
+  notifications: Partial<NotificationSettings>
+): Promise<void> {
+  const settings = await getSettings();
+  const updated = {
+    ...settings,
+    notifications: { ...settings.notifications, ...notifications },
+  };
+  await AsyncStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updated));
+}
+
+// ─── Messages (per server) ───
+
+export async function getMessages(serverId: string): Promise<ChatMessage[]> {
+  const raw = await AsyncStorage.getItem(STORAGE_KEYS.MESSAGES(serverId));
   if (!raw) return [];
-  return JSON.parse(raw) as Chat[];
+  return JSON.parse(raw) as ChatMessage[];
 }
 
-export async function saveChat(chat: Chat): Promise<void> {
-  const chats = await getChats();
-  const idx = chats.findIndex((c) => c.id === chat.id);
-  if (idx >= 0) {
-    chats[idx] = chat;
-  } else {
-    chats.unshift(chat);
-  }
-  await AsyncStorage.setItem(CHATS_KEY, JSON.stringify(chats));
-}
-
-export async function deleteChat(chatId: string): Promise<void> {
-  const chats = await getChats();
-  const filtered = chats.filter((c) => c.id !== chatId);
-  await AsyncStorage.setItem(CHATS_KEY, JSON.stringify(filtered));
-  // Also delete messages for this chat
-  const messages = await getMessages(chatId);
-  void messages; // just to reference
+export async function saveMessages(
+  serverId: string,
+  messages: ChatMessage[]
+): Promise<void> {
+  // Keep only last 1000 messages to avoid storage issues
+  const trimmed = messages.slice(-1000);
   await AsyncStorage.setItem(
-    `${MESSAGES_KEY}_${chatId}`,
-    JSON.stringify([])
+    STORAGE_KEYS.MESSAGES(serverId),
+    JSON.stringify(trimmed)
   );
 }
 
-// ─── Messages ───
-
-export async function getMessages(chatId: string): Promise<Message[]> {
-  const raw = await AsyncStorage.getItem(`${MESSAGES_KEY}_${chatId}`);
-  if (!raw) return [];
-  return JSON.parse(raw) as Message[];
-}
-
-export async function addMessage(message: Message): Promise<void> {
-  const messages = await getMessages(message.chatId);
+export async function addMessage(
+  serverId: string,
+  message: ChatMessage
+): Promise<void> {
+  const messages = await getMessages(serverId);
   messages.push(message);
+  await saveMessages(serverId, messages);
+}
+
+// ─── Small Groups (per server) ───
+
+export async function getGroups(serverId: string): Promise<SmallGroup[]> {
+  const raw = await AsyncStorage.getItem(STORAGE_KEYS.GROUPS(serverId));
+  if (!raw) return [];
+  return JSON.parse(raw) as SmallGroup[];
+}
+
+export async function saveGroups(
+  serverId: string,
+  groups: SmallGroup[]
+): Promise<void> {
   await AsyncStorage.setItem(
-    `${MESSAGES_KEY}_${message.chatId}`,
-    JSON.stringify(messages)
+    STORAGE_KEYS.GROUPS(serverId),
+    JSON.stringify(groups)
   );
-  // Update chat's last message
-  const chats = await getChats();
-  const idx = chats.findIndex((c) => c.id === message.chatId);
-  if (idx >= 0) {
-    chats[idx].lastMessage = message.text;
-    chats[idx].lastTimestamp = message.timestamp;
-    // Move updated chat to top
-    const updated = chats.splice(idx, 1);
-    chats.unshift(updated[0]);
-    await AsyncStorage.setItem(CHATS_KEY, JSON.stringify(chats));
+}
+
+export async function addGroup(
+  serverId: string,
+  group: SmallGroup
+): Promise<void> {
+  const groups = await getGroups(serverId);
+  groups.push(group);
+  await saveGroups(serverId, groups);
+}
+
+export async function removeGroup(
+  serverId: string,
+  groupId: string
+): Promise<void> {
+  const groups = await getGroups(serverId);
+  const filtered = groups.filter((g) => g.id !== groupId);
+  await saveGroups(serverId, filtered);
+}
+
+// ─── Blocklist (per user) ───
+
+export async function getBlocklist(myDeviceId: string): Promise<string[]> {
+  const raw = await AsyncStorage.getItem(STORAGE_KEYS.BLOCKLIST(myDeviceId));
+  if (!raw) return [];
+  return JSON.parse(raw) as string[];
+}
+
+export async function addToBlocklist(
+  myDeviceId: string,
+  blockedDeviceId: string
+): Promise<void> {
+  const blocklist = await getBlocklist(myDeviceId);
+  if (!blocklist.includes(blockedDeviceId)) {
+    blocklist.push(blockedDeviceId);
+    await AsyncStorage.setItem(
+      STORAGE_KEYS.BLOCKLIST(myDeviceId),
+      JSON.stringify(blocklist)
+    );
   }
+}
+
+export async function removeFromBlocklist(
+  myDeviceId: string,
+  blockedDeviceId: string
+): Promise<void> {
+  const blocklist = await getBlocklist(myDeviceId);
+  const filtered = blocklist.filter((id) => id !== blockedDeviceId);
+  await AsyncStorage.setItem(
+    STORAGE_KEYS.BLOCKLIST(myDeviceId),
+    JSON.stringify(filtered)
+  );
+}
+
+// ─── Server History ───
+
+export async function getServerHistory(): Promise<DiscoveredServer[]> {
+  const raw = await AsyncStorage.getItem(STORAGE_KEYS.SERVER_HISTORY);
+  if (!raw) return [];
+  return JSON.parse(raw) as DiscoveredServer[];
+}
+
+export async function addToServerHistory(
+  server: DiscoveredServer
+): Promise<void> {
+  const history = await getServerHistory();
+  const idx = history.findIndex((s) => s.serverId === server.serverId);
+  if (idx >= 0) {
+    history[idx] = { ...server, timestamp: Date.now() };
+  } else {
+    history.unshift(server);
+  }
+  // Keep only last 10 servers
+  await AsyncStorage.setItem(
+    STORAGE_KEYS.SERVER_HISTORY,
+    JSON.stringify(history.slice(0, 10))
+  );
 }
 
 // ─── Helpers ───
@@ -101,20 +249,14 @@ export function formatMessageTime(timestamp: number): string {
   });
 }
 
-// Avatar colors for chats
-export const AVATAR_COLORS = [
-  '#6C63FF',
-  '#FF6584',
-  '#00B894',
-  '#FDCB6E',
-  '#0984E3',
-  '#E17055',
-  '#A29BFE',
-  '#55EFC4',
-  '#FF7675',
-  '#74B9FF',
-];
-
-export function getRandomAvatarColor(): string {
-  return AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
+/**
+ * 根据用户 ID 获取头像颜色
+ */
+export function getAvatarColor(userId: string): string {
+  let hash = 0;
+  for (let i = 0; i < userId.length; i++) {
+    hash = userId.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % AVATAR_COLORS.length;
+  return AVATAR_COLORS[index];
 }
