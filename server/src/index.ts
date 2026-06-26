@@ -33,12 +33,14 @@ app.get('/api/v1/health', (_req, res) => {
 
 // Create a room
 app.post('/api/v1/rooms', (req, res) => {
-  const { name } = req.body;
+  const { name, disguiseMode } = req.body;
   if (!name || typeof name !== 'string' || name.trim().length === 0) {
     res.status(400).json({ error: '房间名称不能为空' });
     return;
   }
-  const room = createRoom(name.trim());
+  const validModes = ['none', 'weather', 'code', 'shopping', 'syslog'];
+  const mode = validModes.includes(disguiseMode) ? disguiseMode : 'none';
+  const room = createRoom(name.trim(), mode);
   res.status(201).json(room);
 });
 
@@ -100,7 +102,7 @@ wss.on('connection', (ws: WebSocket) => {
 
           ws.send(JSON.stringify({
             type: 'joined',
-            room: { id: room.id, code: room.code, name: room.name },
+            room: { id: room.id, code: room.code, name: room.name, disguiseMode: room.disguiseMode },
             userId: user.id,
             users,
             messages: getMessages(room.id),

@@ -14,6 +14,7 @@ export interface ChatRoom {
   id: string;
   code: string;
   name: string;
+  disguiseMode: string;
   createdAt: number;
 }
 
@@ -37,10 +38,10 @@ const roomMessages = new Map<string, ChatMessage[]>(); // roomId -> messages
 
 // ─── Room Management ───
 
-export function createRoom(name: string): ChatRoom {
+export function createRoom(name: string, disguiseMode: string = 'none'): ChatRoom {
   const id = generateId();
   const code = generateRoomCode();
-  const room: ChatRoom = { id, code, name, createdAt: Date.now() };
+  const room: ChatRoom = { id, code, name, disguiseMode, createdAt: Date.now() };
   rooms.set(id, room);
   roomMessages.set(id, []);
   return room;

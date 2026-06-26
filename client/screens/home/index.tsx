@@ -8,6 +8,7 @@ import {
   Alert,
   Platform,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { useFocusEffect } from 'expo-router';
@@ -15,6 +16,8 @@ import { useSafeRouter } from '@/hooks/useSafeRouter';
 import { FontAwesome6 } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { DISGUISE_OPTIONS } from '@/utils/disguise';
+import type { DisguiseMode } from '@/utils/disguise';
 
 const NICKNAME_KEY = '@offline_chat_nickname';
 const API_BASE = process.env.EXPO_PUBLIC_BACKEND_BASE_URL || 'http://localhost:9091';
@@ -26,6 +29,8 @@ export default function HomeScreen() {
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
   const [mode, setMode] = useState<'main' | 'create' | 'join'>('main');
+  const [disguiseMode, setDisguiseMode] = useState<DisguiseMode>('none');
+  const [encryptionEnabled, setEncryptionEnabled] = useState(true);
   const router = useSafeRouter();
   const insets = useSafeAreaInsets();
 
@@ -45,10 +50,18 @@ export default function HomeScreen() {
     if (!roomName.trim()) return;
     setIsCreating(true);
     try {
+      /**
+       * 服务端文件：server/src/index.ts
+       * 接口：POST /api/v1/rooms
+       * Body 参数：name: string, disguiseMode?: 'none' | 'weather' | 'code' | 'shopping' | 'syslog'
+       */
       const response = await fetch(`${API_BASE}/api/v1/rooms`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: roomName.trim() }),
+        body: JSON.stringify({
+          name: roomName.trim(),
+          disguiseMode: encryptionEnabled ? disguiseMode : 'none',
+        }),
       });
       if (!response.ok) throw new Error('创建失败');
       const room = await response.json();
@@ -188,7 +201,7 @@ export default function HomeScreen() {
 
         {/* Create Room Form */}
         {mode === 'create' && (
-          <View style={styles.formContent}>
+          <ScrollView style={styles.formContent} contentContainerStyle={{ paddingBottom: 30 }} showsVerticalScrollIndicator={false}>
             <TouchableOpacity style={styles.backBtn} onPress={() => setMode('main')}>
               <FontAwesome6 name="arrow-left" size={18} color="#6C63FF" />
               <Text style={styles.backText}>返回</Text>
@@ -211,6 +224,70 @@ export default function HomeScreen() {
               </View>
             </View>
 
+            {/* Encryption Toggle */}
+            <View style={styles.securitySection}>
+              <Text style={styles.inputLabel}>安全设置</Text>
+              <View style={styles.securityCard}>
+                <View style={styles.securityRow}>
+                  <View style={styles.securityLeft}>
+                    <View style={[styles.securityIcon, { backgroundColor: 'rgba(0,184,148,0.12)' }]}>
+                      <FontAwesome6 name="shield-halved" size={16} color="#00B894" />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.securityTitle}>端到端加密</Text>
+                      <Text style={styles.securityDesc}>AES-256 加密，仅房间成员可解密</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={[styles.toggle, encryptionEnabled && styles.toggleActive]}
+                    onPress={() => setEncryptionEnabled(!encryptionEnabled)}
+                  >
+                    <View style={[styles.toggleDot, encryptionEnabled && styles.toggleDotActive]} />
+                  </TouchableOpacity>
+                </View>
+
+                {encryptionEnabled && (
+                  <>
+                    <View style={styles.divider} />
+                    <Text style={styles.disguiseSectionTitle}>伪装模式</Text>
+                    <Text style={styles.disguiseSectionDesc}>
+                      加密后的消息将被伪装成以下形式，旁人看到的将是伪装内容
+                    </Text>
+                    {DISGUISE_OPTIONS.map((option) => (
+                      <TouchableOpacity
+                        key={option.mode}
+                        style={[styles.disguiseOption, disguiseMode === option.mode && styles.disguiseOptionActive]}
+                        onPress={() => setDisguiseMode(option.mode)}
+                        activeOpacity={0.7}
+                      >
+                        <View style={[styles.disguiseOptionIcon, {
+                          backgroundColor: disguiseMode === option.mode ? 'rgba(108,99,255,0.15)' : 'rgba(0,0,0,0.04)',
+                        }]}>
+                          <FontAwesome6
+                            name={option.icon as keyof typeof FontAwesome6.glyphMap}
+                            size={14}
+                            color={disguiseMode === option.mode ? '#6C63FF' : '#636E72'}
+                          />
+                        </View>
+                        <View style={styles.disguiseOptionText}>
+                          <Text style={[
+                            styles.disguiseOptionTitle,
+                            disguiseMode === option.mode && styles.disguiseOptionTitleActive,
+                          ]}>
+                            {option.label}
+                          </Text>
+                          <Text style={styles.disguiseOptionDesc}>{option.description}</Text>
+                        </View>
+                        {disguiseMode === option.mode && (
+                          <FontAwesome6 name="check" size={12} color="#6C63FF" />
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </>
+                )}
+              </View>
+            </View>
+
             <TouchableOpacity
               style={[styles.primaryButton, !roomName.trim() && styles.buttonDisabled]}
               onPress={handleCreateRoom}
@@ -223,7 +300,7 @@ export default function HomeScreen() {
                 <Text style={styles.primaryButtonText}>创建并进入</Text>
               )}
             </TouchableOpacity>
-          </View>
+          </ScrollView>
         )}
 
         {/* Join Room Form */}
@@ -465,5 +542,115 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#FFFFFF',
+  },
+  securitySection: {
+    marginBottom: 24,
+  },
+  securityCard: {
+    backgroundColor: '#E8E8EB',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.6)',
+  },
+  securityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  securityLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 12,
+  },
+  securityIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  securityTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#2D3436',
+  },
+  securityDesc: {
+    fontSize: 11,
+    color: '#636E72',
+    marginTop: 2,
+  },
+  toggle: {
+    width: 44,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#D1D9E6',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+  },
+  toggleActive: {
+    backgroundColor: '#6C63FF',
+  },
+  toggleDot: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+  },
+  toggleDotActive: {
+    alignSelf: 'flex-end',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(0,0,0,0.06)',
+    marginVertical: 16,
+  },
+  disguiseSectionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#2D3436',
+    marginBottom: 4,
+  },
+  disguiseSectionDesc: {
+    fontSize: 11,
+    color: '#636E72',
+    marginBottom: 12,
+    lineHeight: 16,
+  },
+  disguiseOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderRadius: 14,
+    marginBottom: 6,
+    backgroundColor: 'rgba(255,255,255,0.4)',
+  },
+  disguiseOptionActive: {
+    backgroundColor: 'rgba(108,99,255,0.08)',
+  },
+  disguiseOptionIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  disguiseOptionText: {
+    flex: 1,
+  },
+  disguiseOptionTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#2D3436',
+  },
+  disguiseOptionTitleActive: {
+    color: '#6C63FF',
+  },
+  disguiseOptionDesc: {
+    fontSize: 10,
+    color: '#636E72',
+    marginTop: 1,
   },
 });
