@@ -23,6 +23,8 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="index" options={{ title: "" }} />
+        <Stack.Screen name="nickname" options={{ title: "" }} />
+        <Stack.Screen name="chatRoom" options={{ title: "" }} />
       </Stack>
       <Toast />
     </Provider>
