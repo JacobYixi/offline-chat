@@ -62,7 +62,7 @@ export default function LanguageScreen() {
           >
             <FontAwesome6 name="arrow-left" size={20} color="#E2E8F0" />
           </TouchableOpacity>
-          <Text className="flex-1 text-center text-lg font-semibold text-white">
+          <Text className="flex-1 text-center text-lg font-semibold text-foreground">
             {t('language.title')}
           </Text>
           <View className="w-10" />
@@ -78,11 +78,11 @@ export default function LanguageScreen() {
           >
             <View className="flex-1">
               <Text className={`text-base font-medium ${
-                isSelected('system') ? 'text-primary' : 'text-white'
+                isSelected('system') ? 'text-primary' : 'text-foreground'
               }`}>
                 {t('language.followSystem')}
               </Text>
-              <Text className="text-xs text-gray-500 mt-0.5">
+              <Text className="text-xs text-muted mt-0.5">
                 {t('language.followSystemDesc')}
               </Text>
             </View>
@@ -106,7 +106,7 @@ export default function LanguageScreen() {
               >
                 <View className="flex-1 flex-row items-center">
                   <Text className={`text-base ${
-                    isSelected(item.code) ? 'text-primary font-medium' : 'text-white'
+                    isSelected(item.code) ? 'text-primary font-medium' : 'text-foreground'
                   }`}>
                     {t(item.name)}
                   </Text>

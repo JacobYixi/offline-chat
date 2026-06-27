@@ -96,6 +96,14 @@ const fa: TranslationKeys = {
     defaultRoomName: 'اتاق چت',
     kicked: 'شما از اتاق اخراج شدید',
     nicknameTaken: 'این نام مستعار قبلا استفاده شده',
+    reconnecting: 'Reconnecting...',
+    disguiseMode: 'Disguise Mode',
+    controlPanel: 'Control Panel',
+    smallGroups: 'Small Groups',
+    selectDisguise: 'Select Disguise',
+    reportUser: 'Report User',
+    reportReason: 'Report Reason',
+    submitReport: 'Submit Report',
   },
 
   users: {

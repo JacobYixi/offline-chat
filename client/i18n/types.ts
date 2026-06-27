@@ -127,6 +127,14 @@ export interface TranslationKeys {
     defaultRoomName: string;
     kicked: string;
     nicknameTaken: string;
+    reconnecting: string;
+    disguiseMode: string;
+    controlPanel: string;
+    smallGroups: string;
+    selectDisguise: string;
+    reportUser: string;
+    reportReason: string;
+    submitReport: string;
   };
 
   // 在线用户

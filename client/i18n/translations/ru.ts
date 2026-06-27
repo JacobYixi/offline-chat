@@ -96,6 +96,14 @@ const ru: TranslationKeys = {
     defaultRoomName: 'Chat Room',
     kicked: 'You have been kicked from the chat room',
     nicknameTaken: 'This nickname is already taken',
+    reconnecting: 'Reconnecting...',
+    disguiseMode: 'Disguise Mode',
+    controlPanel: 'Control Panel',
+    smallGroups: 'Small Groups',
+    selectDisguise: 'Select Disguise',
+    reportUser: 'Report User',
+    reportReason: 'Report Reason',
+    submitReport: 'Submit Report',
   },
 
   users: {

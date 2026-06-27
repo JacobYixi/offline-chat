@@ -96,6 +96,14 @@ const zhTW: TranslationKeys = {
     defaultRoomName: '聊天室',
     kicked: '您已被踢出聊天室',
     nicknameTaken: '此暱稱已被使用',
+    reconnecting: 'Reconnecting...',
+    disguiseMode: 'Disguise Mode',
+    controlPanel: 'Control Panel',
+    smallGroups: 'Small Groups',
+    selectDisguise: 'Select Disguise',
+    reportUser: 'Report User',
+    reportReason: 'Report Reason',
+    submitReport: 'Submit Report',
   },
 
   users: {

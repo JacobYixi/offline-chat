@@ -120,7 +120,7 @@ export default function CreateRoomScreen() {
             >
               <FontAwesome6 name="arrow-left" size={20} color="#E2E8F0" />
             </TouchableOpacity>
-            <Text className="flex-1 text-center text-lg font-semibold text-white">
+            <Text className="flex-1 text-center text-lg font-semibold text-foreground">
               {t('createRoom.title')}
             </Text>
             <View className="w-10" />
@@ -129,13 +129,13 @@ export default function CreateRoomScreen() {
           <ScrollView className="flex-1 px-4 py-6" showsVerticalScrollIndicator={false}>
             {/* 房间名称 */}
             <View className="mb-6">
-              <Text className="text-sm font-medium text-gray-300 mb-2">
+              <Text className="text-sm font-medium text-muted-foreground mb-2">
                 {t('createRoom.roomName')}
               </Text>
               <View className="bg-surface-container rounded-2xl px-4 py-3.5 flex-row items-center">
                 <FontAwesome6 name="pen" size={16} color="#64748B" />
                 <TextInput
-                  className="flex-1 ml-3 text-base text-white"
+                  className="flex-1 ml-3 text-base text-foreground"
                   placeholder={t('createRoom.roomNamePlaceholder')}
                   placeholderTextColor="#64748B"
                   value={roomName}
@@ -144,20 +144,20 @@ export default function CreateRoomScreen() {
                   returnKeyType="next"
                 />
               </View>
-              <Text className="text-xs text-gray-500 mt-1.5 ml-1">
+              <Text className="text-xs text-muted mt-1.5 ml-1">
                 {t('createRoom.roomNameHint')}
               </Text>
             </View>
 
             {/* 房间密码 */}
             <View className="mb-6">
-              <Text className="text-sm font-medium text-gray-300 mb-2">
+              <Text className="text-sm font-medium text-muted-foreground mb-2">
                 {t('createRoom.password')}
               </Text>
               <View className="bg-surface-container rounded-2xl px-4 py-3.5 flex-row items-center">
                 <FontAwesome6 name="lock" size={16} color="#64748B" />
                 <TextInput
-                  className="flex-1 ml-3 text-base text-white"
+                  className="flex-1 ml-3 text-base text-foreground"
                   placeholder={t('createRoom.passwordPlaceholder')}
                   placeholderTextColor="#64748B"
                   value={password}
@@ -167,7 +167,7 @@ export default function CreateRoomScreen() {
                   secureTextEntry
                 />
               </View>
-              <Text className="text-xs text-gray-500 mt-1.5 ml-1">
+              <Text className="text-xs text-muted mt-1.5 ml-1">
                 {t('createRoom.passwordHint')}
               </Text>
             </View>
@@ -179,7 +179,7 @@ export default function CreateRoomScreen() {
                   <View className="w-8 h-8 rounded-full bg-primary/20 items-center justify-center mr-3">
                     <FontAwesome6 name="user-check" size={14} color="#6366F1" />
                   </View>
-                  <Text className="text-base text-white flex-1">
+                  <Text className="text-base text-foreground flex-1">
                     {t('createRoom.requireApproval')}
                   </Text>
                 </View>
@@ -195,7 +195,7 @@ export default function CreateRoomScreen() {
             {/* 审批过期时间 */}
             {requireApproval && (
               <View className="mb-6">
-                <Text className="text-sm font-medium text-gray-300 mb-2">
+                <Text className="text-sm font-medium text-muted-foreground mb-2">
                   {t('createRoom.approvalExpiry')}
                 </Text>
                 <View className="flex-row flex-wrap gap-2">
@@ -216,7 +216,7 @@ export default function CreateRoomScreen() {
                     >
                       <Text
                         className={`text-sm font-medium ${
-                          approvalExpiry === option.value ? 'text-white' : 'text-gray-400'
+                          approvalExpiry === option.value ? 'text-foreground' : 'text-muted'
                         }`}
                       >
                         {option.label}
@@ -237,7 +237,7 @@ export default function CreateRoomScreen() {
                   <View className="w-8 h-8 rounded-full bg-primary/20 items-center justify-center mr-3">
                     <FontAwesome6 name="gear" size={14} color="#6366F1" />
                   </View>
-                  <Text className="text-base text-white">
+                  <Text className="text-base text-foreground">
                     {t('createRoom.advancedSettings')}
                   </Text>
                 </View>
@@ -254,10 +254,10 @@ export default function CreateRoomScreen() {
                   {/* 端到端加密 */}
                   <View className="flex-row items-center justify-between mb-4">
                     <View className="flex-1 mr-4">
-                      <Text className="text-base text-white mb-1">
+                      <Text className="text-base text-foreground mb-1">
                         {t('createRoom.encryption')}
                       </Text>
-                      <Text className="text-xs text-gray-500">
+                      <Text className="text-xs text-muted">
                         {t('createRoom.encryptionHint')}
                       </Text>
                     </View>
@@ -271,7 +271,7 @@ export default function CreateRoomScreen() {
 
                   {/* 消息伪装 */}
                   <View className="border-t border-border/20 pt-4">
-                    <Text className="text-sm font-medium text-gray-300 mb-2">
+                    <Text className="text-sm font-medium text-muted-foreground mb-2">
                       {t('createRoom.disguiseType')}
                     </Text>
                     <View className="flex-row flex-wrap gap-2">
@@ -293,7 +293,7 @@ export default function CreateRoomScreen() {
                         >
                           <Text
                             className={`text-xs font-medium ${
-                              disguiseType === option.value ? 'text-white' : 'text-gray-400'
+                              disguiseType === option.value ? 'text-foreground' : 'text-muted'
                             }`}
                           >
                             {option.label}
@@ -324,14 +324,14 @@ export default function CreateRoomScreen() {
               {isCreating ? (
                 <>
                   <ActivityIndicator color="#FFF" size="small" />
-                  <Text className="text-white text-base font-semibold ml-2">
+                  <Text className="text-foreground text-base font-semibold ml-2">
                     {t('createRoom.creating')}
                   </Text>
                 </>
               ) : (
                 <>
                   <FontAwesome6 name="play" size={16} color="#FFF" style={{ marginRight: 8 }} />
-                  <Text className="text-white text-base font-semibold">
+                  <Text className="text-foreground text-base font-semibold">
                     {t('createRoom.createButton')}
                   </Text>
                 </>
