@@ -64,15 +64,20 @@ let listeners: Array<() => void> = [];
 function detectSystemLanguage(): SupportedLanguage {
   const locales = Localization.getLocales();
   if (!locales || locales.length === 0) {
-    return 'en';
+    return 'zh-CN';
   }
 
   const locale = locales[0];
   const languageCode = locale.languageCode?.toLowerCase();
   const regionCode = locale.regionCode?.toUpperCase();
 
-  // 中文特殊处理（区分简繁体，目前只支持简体）
+  // 中文特殊处理（支持 zh, zh-Hans, zh-CN, zh-Hant, zh-TW 等格式）
   if (languageCode === 'zh') {
+    // 检查是否是繁体中文
+    if (regionCode === 'TW' || regionCode === 'HK' || regionCode === 'MO') {
+      return 'zh-TW';
+    }
+    // 默认为简体中文
     return 'zh-CN';
   }
 
@@ -82,8 +87,8 @@ function detectSystemLanguage(): SupportedLanguage {
     return languageCode as SupportedLanguage;
   }
 
-  // 默认英文
-  return 'en';
+  // 默认中文
+  return 'zh-CN';
 }
 
 /**
