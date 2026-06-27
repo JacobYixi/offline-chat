@@ -42,7 +42,7 @@ export default function ChatRoomScreen() {
   const serverName = (params.serverName as string) || t('chat.defaultRoomName');
   const serverIp = (params.serverIp as string) || '';
   const serverPort = (params.serverPort as number) || 9091;
-  const nickname = (params.nickname as string) || '匿名';
+  const nickname = (params.nickname as string) || t('chat.anonymous');
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [users, setUsers] = useState<ChatUser[]>([]);
@@ -191,7 +191,7 @@ export default function ChatRoomScreen() {
           break;
         }
         case 'approvalRejected': {
-          Alert.alert('提示', '申请被拒绝');
+          Alert.alert(t('common.notice'), t('home.rejected'));
           router.replace('/');
           break;
         }
@@ -330,8 +330,8 @@ export default function ChatRoomScreen() {
     setReportTarget(null);
     setReportReason('');
     setSelectedMessages([]);
-    Alert.alert('提示', '举报已提交');
-  }, [reportTarget, reportReason, deviceId, nickname, selectedMessages]);
+    Alert.alert(t('common.notice'), t('chat.reportSubmitted'));
+  }, [reportTarget, reportReason, deviceId, nickname, selectedMessages, t]);
 
   const renderMessage = useCallback(
     ({ item }: { item: ChatMessage }) => {
@@ -424,7 +424,7 @@ export default function ChatRoomScreen() {
               style={styles.userCountBadge}
             >
               <View style={styles.onlineDot} />
-              <Text style={styles.userCountText}>{users.length}人在线</Text>
+              <Text style={styles.userCountText}>{t('chat.onlineCount', { count: users.length })}</Text>
             </TouchableOpacity>
           </View>
           <TouchableOpacity
@@ -490,7 +490,7 @@ export default function ChatRoomScreen() {
           <View style={styles.replyBar}>
             <View style={styles.replyBarContent}>
               <Text style={styles.replyBarText}>
-                回复 {replyTo.senderName}: {replyTo.text.slice(0, 30)}
+                {t('chat.replyPrefix')} {replyTo.senderName}: {replyTo.text.slice(0, 30)}
                 {replyTo.text.length > 30 ? '...' : ''}
               </Text>
             </View>
@@ -614,7 +614,7 @@ export default function ChatRoomScreen() {
             onPress={() => setShowDisguiseMenu(false)}
           >
             <View style={styles.disguiseMenu}>
-              <Text style={styles.disguiseMenuTitle}>选择伪装模式</Text>
+              <Text style={styles.disguiseMenuTitle}>{t('chat.selectDisguiseMode')}</Text>
               {DISGUISE_OPTIONS.map((option) => (
                 <TouchableOpacity
                   key={option.mode}
@@ -657,12 +657,12 @@ export default function ChatRoomScreen() {
           <View style={styles.privateChatModal}>
             <View style={styles.privateChatHeader}>
               <Text style={styles.privateChatTitle}>
-                私聊: {privateChatTarget?.nickname}
+                {t('chat.privateChatPrefix')}: {privateChatTarget?.nickname}
               </Text>
               <View style={styles.privateChatActions}>
                 <TouchableOpacity
                   onPress={() => {
-                    Alert.alert('提示', '已拉黑该用户');
+                    Alert.alert(t('common.notice'), t('chat.blockedUser'));
                     setShowPrivateChat(false);
                   }}
                   style={styles.blockButton}
@@ -676,13 +676,13 @@ export default function ChatRoomScreen() {
             </View>
             <View style={styles.privateChatContent}>
               <Text style={styles.privateChatPlaceholder}>
-                私聊消息将显示在这里
+                {t('chat.privateChatPlaceholder')}
               </Text>
             </View>
             <View style={styles.privateChatInput}>
               <TextInput
                 style={styles.textInput}
-                placeholder="输入私聊消息..."
+                placeholder={t('chat.privateMessagePlaceholder')}
                 placeholderTextColor="#64748B"
               />
               <TouchableOpacity style={styles.sendButton}>
