@@ -67,6 +67,10 @@ export default function HomeScreen() {
     setIsNicknameSet(true);
   };
 
+  const handleChangeNickname = () => {
+    setIsNicknameSet(false);
+  };
+
   const handleConnectToServer = async (server: DiscoveredServer) => {
     setSelectedServer(server);
 
@@ -217,6 +221,17 @@ export default function HomeScreen() {
 
   const renderServerDiscovery = () => (
     <View style={styles.section}>
+      {/* 显示当前昵称和修改按钮 */}
+      <View style={styles.nicknameBar}>
+        <View style={styles.nicknameInfo}>
+          <FontAwesome6 name="user" size={16} color="#6366F1" />
+          <Text style={styles.nicknameText}>{nickname}</Text>
+        </View>
+        <TouchableOpacity onPress={handleChangeNickname} style={styles.changeNicknameBtn}>
+          <Text style={styles.changeNicknameText}>{t('home.changeNickname')}</Text>
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.scanHeader}>
         <View style={styles.scanIndicator}>
           {scanning && <ActivityIndicator size="small" color="#6366F1" />}
@@ -518,6 +533,36 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0F172A',
+  },
+  nicknameBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#1E293B',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+  },
+  nicknameInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  nicknameText: {
+    color: '#F8FAFC',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  changeNicknameBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#6366F1',
+    borderRadius: 8,
+  },
+  changeNicknameText: {
+    color: '#F8FAFC',
+    fontSize: 14,
+    fontWeight: '500',
   },
   header: {
     flexDirection: 'row',

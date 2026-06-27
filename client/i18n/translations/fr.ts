@@ -26,6 +26,7 @@ const fr: TranslationKeys = {
     nickname: 'Définir le pseudo',
     nicknamePlaceholder: 'Entrez votre pseudo',
     setNickname: 'Confirmer',
+    changeNickname: 'Change',
     nicknameRequired: 'Please set a nickname first',
     nicknameLengthError: 'Nickname must be 2-12 characters',
     nicknameSet: 'Pseudo défini',

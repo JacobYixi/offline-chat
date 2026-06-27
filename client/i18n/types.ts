@@ -55,6 +55,7 @@ export interface TranslationKeys {
     nickname: string;
     nicknamePlaceholder: string;
     setNickname: string;
+    changeNickname: string;
     nicknameRequired: string;
     nicknameLengthError: string;
     nicknameSet: string;

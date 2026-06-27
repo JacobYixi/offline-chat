@@ -26,6 +26,7 @@ const ko: TranslationKeys = {
     nickname: '닉네임 설정',
     nicknamePlaceholder: '닉네임을 입력하세요',
     setNickname: '확인',
+    changeNickname: 'Change',
     nicknameRequired: 'Please set a nickname first',
     nicknameLengthError: 'Nickname must be 2-12 characters',
     nicknameSet: '닉네임이 설정되었습니다',

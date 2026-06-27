@@ -26,6 +26,7 @@ const es: TranslationKeys = {
     nickname: 'Establecer apodo',
     nicknamePlaceholder: 'Ingresa tu apodo',
     setNickname: 'Confirmar',
+    changeNickname: 'Change',
     nicknameRequired: 'Please set a nickname first',
     nicknameLengthError: 'Nickname must be 2-12 characters',
     nicknameSet: 'Apodo establecido',

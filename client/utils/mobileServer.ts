@@ -191,37 +191,39 @@ function handleAuth(clientId: string, payload: any) {
     return;
   }
 
-  // 检查昵称是否重复
-  const existingUser = Array.from(state.users.values()).find(u => u.nickname === nickname);
-  if (existingUser) {
-    sendToClient(clientId, { type: 'auth:rejected', payload: { reason: 'nickname_taken' } });
-    return;
+  // 检查昵称是否重复，如果重复则自动加编号
+  let finalNickname = nickname;
+  let suffix = 1;
+  const existingUsers = Array.from(state.users.values());
+  while (existingUsers.some(u => u.nickname === finalNickname)) {
+    suffix++;
+    finalNickname = `${nickname}#${suffix}`;
   }
 
   // 检查是否需要审批
   if (state.config.requireApproval && !isOwner(clientId)) {
     state.pendingApprovals.set(deviceId, {
       deviceId,
-      nickname,
+      nickname: finalNickname,
       message: payload.message || '',
       timestamp: Date.now(),
     });
     sendToClient(clientId, { type: 'auth:pending' });
     // 通知房主
-    notifyOwner({ type: 'approval:new', payload: { deviceId, nickname, message: payload.message } });
+    notifyOwner({ type: 'approval:new', payload: { deviceId, nickname: finalNickname, message: payload.message } });
     return;
   }
 
   // 认证成功
   client.deviceId = deviceId;
-  client.nickname = nickname;
+  client.nickname = finalNickname;
   client.isApproved = true;
   client.joinedAt = Date.now();
 
   // 创建用户信息
   const user: ChatUser = {
     id: deviceId,
-    nickname,
+    nickname: finalNickname,
     isOwner: false,
     isApproved: true,
     pubKey: payload.pubKey || '',
@@ -234,6 +236,7 @@ function handleAuth(clientId: string, payload: any) {
     payload: {
       serverId: state.serverId,
       serverName: state.config.serverName,
+      nickname: finalNickname, // 返回实际使用的昵称（可能带编号）
       users: Array.from(state.users.values()),
       messages: state.messages.slice(-50), // 最近50条消息
     },

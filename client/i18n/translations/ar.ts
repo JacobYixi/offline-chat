@@ -26,6 +26,7 @@ const ar: TranslationKeys = {
     nickname: 'تعيين الاسم المستعار',
     nicknamePlaceholder: 'أدخل اسمك المستعار',
     setNickname: 'تأكيد',
+    changeNickname: 'Change',
     nicknameRequired: 'Please set a nickname first',
     nicknameLengthError: 'Nickname must be 2-12 characters',
     nicknameSet: 'تم تعيين الاسم المستعار',

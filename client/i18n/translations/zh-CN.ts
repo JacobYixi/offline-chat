@@ -26,6 +26,7 @@ const zhCN: TranslationKeys = {
     nickname: '设置昵称',
     nicknamePlaceholder: '输入你的昵称',
     setNickname: '设置昵称',
+    changeNickname: '修改',
     nicknameRequired: '请先设置昵称才能继续',
     nicknameLengthError: '昵称长度必须在 2-12 个字符之间',
     nicknameSet: '昵称已设置',

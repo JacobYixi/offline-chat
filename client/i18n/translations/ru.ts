@@ -26,6 +26,7 @@ const ru: TranslationKeys = {
     nickname: 'Установить ник',
     nicknamePlaceholder: 'Введите ваш ник',
     setNickname: 'Подтвердить',
+    changeNickname: 'Change',
     nicknameRequired: 'Please set a nickname first',
     nicknameLengthError: 'Nickname must be 2-12 characters',
     nicknameSet: 'Ник установлен',

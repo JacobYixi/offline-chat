@@ -26,6 +26,7 @@ const zhTW: TranslationKeys = {
     nickname: '設定暱稱',
     nicknamePlaceholder: '請輸入暱稱',
     setNickname: '確認',
+    changeNickname: '修改',
     nicknameRequired: '請先設定暱稱',
     nicknameLengthError: '暱稱長度需為 2-12 個字元',
     nicknameSet: '暱稱已設定',

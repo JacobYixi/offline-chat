@@ -26,6 +26,7 @@ const ja: TranslationKeys = {
     nickname: 'ニックネームを設定',
     nicknamePlaceholder: 'ニックネームを入力',
     setNickname: '確認',
+    changeNickname: 'Change',
     nicknameRequired: 'Please set a nickname first',
     nicknameLengthError: 'Nickname must be 2-12 characters',
     nicknameSet: 'ニックネームが設定されました',

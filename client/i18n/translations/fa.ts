@@ -26,6 +26,7 @@ const fa: TranslationKeys = {
     nickname: 'تنظیم نام مستعار',
     nicknamePlaceholder: 'نام مستعار خود را وارد کنید',
     setNickname: 'تایید',
+    changeNickname: 'Change',
     nicknameRequired: 'لطفا ابتدا نام مستعار را تنظیم کنید',
     nicknameLengthError: 'نام مستعار باید 2-12 کاراکتر باشد',
     nicknameSet: 'نام مستعار تنظیم شد',

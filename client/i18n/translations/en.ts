@@ -26,6 +26,7 @@ const en: TranslationKeys = {
     nickname: 'Set Nickname',
     nicknamePlaceholder: 'Enter your nickname',
     setNickname: 'Confirm',
+    changeNickname: 'Change',
     nicknameRequired: 'Please set a nickname first',
     nicknameLengthError: 'Nickname must be 2-12 characters',
     nicknameSet: 'Nickname set',
