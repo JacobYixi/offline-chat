@@ -18,6 +18,7 @@ const ar: TranslationKeys = {
     no: 'لا',
     ok: 'موافق',
     retry: 'إعادة المحاولة',
+    connect: 'اتصال',
   },
 
   home: {

@@ -18,6 +18,7 @@ const ja: TranslationKeys = {
     no: 'いいえ',
     ok: 'OK',
     retry: '再試行',
+    connect: '接続',
   },
 
   home: {

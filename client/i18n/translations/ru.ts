@@ -18,6 +18,7 @@ const ru: TranslationKeys = {
     no: 'Нет',
     ok: 'ОК',
     retry: 'Повторить',
+    connect: 'Подключиться',
   },
 
   home: {

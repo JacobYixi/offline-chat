@@ -18,6 +18,7 @@ const zhCN: TranslationKeys = {
     no: '否',
     ok: '确定',
     retry: '重试',
+    connect: '连接',
   },
   home: {
     appName: 'OfflineChat',

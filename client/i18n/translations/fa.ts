@@ -18,6 +18,7 @@ const fa: TranslationKeys = {
     no: 'خیر',
     ok: 'باشه',
     retry: 'تلاش مجدد',
+    connect: 'اتصال',
   },
 
   home: {
