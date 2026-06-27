@@ -468,6 +468,7 @@ function handleKick(clientId: string, payload: any) {
       client.socket.destroy();
       state.clients.delete(id);
       state.users.delete(deviceId);
+      state.deviceNicknames.delete(deviceId); // 释放昵称，允许新用户使用
       broadcast({ type: 'user:left', payload: { deviceId } });
     }
   });
@@ -578,6 +579,7 @@ export async function startServer(config: Partial<ServerConfig>): Promise<{ succ
         const client = state.clients.get(clientId);
         if (client && client.isApproved) {
           state.users.delete(client.deviceId);
+          state.deviceNicknames.delete(client.deviceId); // 释放昵称，允许新用户使用
           broadcast({ type: 'user:left', payload: { deviceId: client.deviceId } });
           emit('user:left', { deviceId: client.deviceId });
         }
