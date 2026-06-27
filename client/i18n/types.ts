@@ -5,16 +5,18 @@
 // 支持的语言
 export type SupportedLanguage = 
   | 'zh-CN'    // 中文简体
+  | 'zh-TW'    // 中文繁体
   | 'en'       // 英文
   | 'fr'       // 法文
   | 'ru'       // 俄文
   | 'es'       // 西班牙文
   | 'ar'       // 阿拉伯文 (RTL)
+  | 'fa'       // 波斯文 (RTL)
   | 'ja'       // 日文
   | 'ko';      // 韩文
 
 // RTL 语言列表
-export const RTL_LANGUAGES: SupportedLanguage[] = ['ar'];
+export const RTL_LANGUAGES: SupportedLanguage[] = ['ar', 'fa'];
 
 // 语言配置
 export interface LanguageConfig {
@@ -53,6 +55,8 @@ export interface TranslationKeys {
     nickname: string;
     nicknamePlaceholder: string;
     setNickname: string;
+    nicknameRequired: string;
+    nicknameLengthError: string;
     nicknameSet: string;
     scanning: string;
     scanningSubtitle: string;
@@ -105,6 +109,8 @@ export interface TranslationKeys {
     onlineUsers: string;
     send: string;
     inputPlaceholder: string;
+    noMessages: string;
+    noMessagesHint: string;
     mention: string;
     reply: string;
     copy: string;
@@ -119,6 +125,7 @@ export interface TranslationKeys {
     transferOwnership: string;
     defaultRoomName: string;
     kicked: string;
+    nicknameTaken: string;
   };
 
   // 在线用户
@@ -187,13 +194,16 @@ export interface TranslationKeys {
     followSystem: string;
     followSystemDesc: string;
     zhCN: string;
+    zhTW: string;
     en: string;
     fr: string;
     ru: string;
     es: string;
     ar: string;
+    fa: string;
     ja: string;
     ko: string;
+    rtlNote: string;
   };
 
   // 连接状态

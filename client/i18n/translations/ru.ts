@@ -26,6 +26,8 @@ const ru: TranslationKeys = {
     nickname: 'Установить ник',
     nicknamePlaceholder: 'Введите ваш ник',
     setNickname: 'Подтвердить',
+    nicknameRequired: 'Please set a nickname first',
+    nicknameLengthError: 'Nickname must be 2-12 characters',
     nicknameSet: 'Ник установлен',
     scanning: 'Поиск серверов поблизости...',
     scanningSubtitle: 'Убедитесь, что все устройства в одной сети',
@@ -76,6 +78,8 @@ const ru: TranslationKeys = {
     onlineUsers: 'Online Users',
     send: 'Отправить',
     inputPlaceholder: 'Введите сообщение...',
+    noMessages: 'No messages yet',
+    noMessagesHint: 'Send the first message to start the chat',
     mention: 'Упомянуть',
     reply: 'Ответить',
     copy: 'Копировать',
@@ -90,6 +94,7 @@ const ru: TranslationKeys = {
     transferOwnership: 'Передать владение',
     defaultRoomName: 'Chat Room',
     kicked: 'You have been kicked from the chat room',
+    nicknameTaken: 'This nickname is already taken',
   },
 
   users: {
@@ -152,6 +157,7 @@ const ru: TranslationKeys = {
     followSystem: 'Системный',
     followSystemDesc: 'Автоматически определять язык системы',
     zhCN: '中文（简体）',
+    zhTW: '中文（繁體）',
     en: 'English',
     fr: 'Français',
     ru: 'Русский',
@@ -159,6 +165,8 @@ const ru: TranslationKeys = {
     ar: 'العربية',
     ja: '日本語',
     ko: '한국어',
+    fa: 'فارسی',
+    rtlNote: 'RTL',
   },
 
   connection: {

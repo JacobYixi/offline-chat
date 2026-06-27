@@ -26,6 +26,8 @@ const ko: TranslationKeys = {
     nickname: '닉네임 설정',
     nicknamePlaceholder: '닉네임을 입력하세요',
     setNickname: '확인',
+    nicknameRequired: 'Please set a nickname first',
+    nicknameLengthError: 'Nickname must be 2-12 characters',
     nicknameSet: '닉네임이 설정되었습니다',
     scanning: '근처 서버 스캔 중...',
     scanningSubtitle: '모든 기기가 같은 네트워크에 있는지 확인하세요',
@@ -76,6 +78,8 @@ const ko: TranslationKeys = {
     onlineUsers: 'Online Users',
     send: '전송',
     inputPlaceholder: '메시지 입력...',
+    noMessages: 'No messages yet',
+    noMessagesHint: 'Send the first message to start the chat',
     mention: '멘션',
     reply: '답장',
     copy: '복사',
@@ -90,6 +94,7 @@ const ko: TranslationKeys = {
     transferOwnership: '소유권 이전',
     defaultRoomName: 'Chat Room',
     kicked: 'You have been kicked from the chat room',
+    nicknameTaken: 'This nickname is already taken',
   },
 
   users: {
@@ -152,6 +157,7 @@ const ko: TranslationKeys = {
     followSystem: '시스템 따르기',
     followSystemDesc: '시스템 언어 자동 감지',
     zhCN: '中文（简体）',
+    zhTW: '中文（繁體）',
     en: 'English',
     fr: 'Français',
     ru: 'Русский',
@@ -159,6 +165,8 @@ const ko: TranslationKeys = {
     ar: 'العربية',
     ja: '日本語',
     ko: '한국어',
+    fa: 'فارسی',
+    rtlNote: 'RTL',
   },
 
   connection: {

@@ -26,6 +26,8 @@ const en: TranslationKeys = {
     nickname: 'Set Nickname',
     nicknamePlaceholder: 'Enter your nickname',
     setNickname: 'Confirm',
+    nicknameRequired: 'Please set a nickname first',
+    nicknameLengthError: 'Nickname must be 2-12 characters',
     nicknameSet: 'Nickname set',
     scanning: 'Scanning for servers nearby...',
     scanningSubtitle: 'Make sure all devices are on the same network',
@@ -76,6 +78,8 @@ const en: TranslationKeys = {
     onlineUsers: 'Online Users',
     send: 'Send',
     inputPlaceholder: 'Type a message...',
+    noMessages: 'No messages yet',
+    noMessagesHint: 'Send the first message to start the chat',
     mention: 'Mention',
     reply: 'Reply',
     copy: 'Copy',
@@ -90,6 +94,7 @@ const en: TranslationKeys = {
     transferOwnership: 'Transfer Ownership',
     defaultRoomName: 'Chat Room',
     kicked: 'You have been kicked from the chat room',
+    nicknameTaken: 'This nickname is already taken',
   },
 
   users: {
@@ -152,6 +157,7 @@ const en: TranslationKeys = {
     followSystem: 'Follow System',
     followSystemDesc: 'Auto-detect system language',
     zhCN: '中文（简体）',
+    zhTW: '中文（繁體）',
     en: 'English',
     fr: 'Français',
     ru: 'Русский',
@@ -159,6 +165,8 @@ const en: TranslationKeys = {
     ar: 'العربية',
     ja: '日本語',
     ko: '한국어',
+    fa: 'فارسی',
+    rtlNote: 'RTL',
   },
 
   connection: {

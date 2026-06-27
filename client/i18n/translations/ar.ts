@@ -26,6 +26,8 @@ const ar: TranslationKeys = {
     nickname: 'تعيين الاسم المستعار',
     nicknamePlaceholder: 'أدخل اسمك المستعار',
     setNickname: 'تأكيد',
+    nicknameRequired: 'Please set a nickname first',
+    nicknameLengthError: 'Nickname must be 2-12 characters',
     nicknameSet: 'تم تعيين الاسم المستعار',
     scanning: 'جاري البحث عن خوادم قريبة...',
     scanningSubtitle: 'تأكد من أن جميع الأجهزة على نفس الشبكة',
@@ -76,6 +78,8 @@ const ar: TranslationKeys = {
     onlineUsers: 'Online Users',
     send: 'إرسال',
     inputPlaceholder: 'اكتب رسالة...',
+    noMessages: 'No messages yet',
+    noMessagesHint: 'Send the first message to start the chat',
     mention: 'إشارة',
     reply: 'رد',
     copy: 'نسخ',
@@ -90,6 +94,7 @@ const ar: TranslationKeys = {
     transferOwnership: 'نقل الملكية',
     defaultRoomName: 'Chat Room',
     kicked: 'You have been kicked from the chat room',
+    nicknameTaken: 'This nickname is already taken',
   },
 
   users: {
@@ -152,6 +157,7 @@ const ar: TranslationKeys = {
     followSystem: 'متابعة النظام',
     followSystemDesc: 'الكشف التلقائي عن لغة النظام',
     zhCN: '中文（简体）',
+    zhTW: '中文（繁體）',
     en: 'English',
     fr: 'Français',
     ru: 'Русский',
@@ -159,6 +165,8 @@ const ar: TranslationKeys = {
     ar: 'العربية',
     ja: '日本語',
     ko: '한국어',
+    fa: 'فارسی',
+    rtlNote: 'RTL',
   },
 
   connection: {

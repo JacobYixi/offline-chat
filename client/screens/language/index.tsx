@@ -20,11 +20,13 @@ const LANGUAGE_LIST: Array<{
 }> = [
   { code: 'system', name: 'language.followSystem', subtitle: 'language.followSystemDesc' },
   { code: 'zh-CN', name: 'language.zhCN' },
+  { code: 'zh-TW', name: 'language.zhTW' },
   { code: 'en', name: 'language.en' },
   { code: 'fr', name: 'language.fr' },
   { code: 'ru', name: 'language.ru' },
   { code: 'es', name: 'language.es' },
   { code: 'ar', name: 'language.ar', isRTL: true },
+  { code: 'fa', name: 'language.fa', isRTL: true },
   { code: 'ja', name: 'language.ja' },
   { code: 'ko', name: 'language.ko' },
 ];

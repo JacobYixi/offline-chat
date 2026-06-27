@@ -26,6 +26,8 @@ const fr: TranslationKeys = {
     nickname: 'Définir le pseudo',
     nicknamePlaceholder: 'Entrez votre pseudo',
     setNickname: 'Confirmer',
+    nicknameRequired: 'Please set a nickname first',
+    nicknameLengthError: 'Nickname must be 2-12 characters',
     nicknameSet: 'Pseudo défini',
     scanning: 'Recherche de serveurs à proximité...',
     scanningSubtitle: 'Assurez-vous que tous les appareils sont sur le même réseau',
@@ -76,6 +78,8 @@ const fr: TranslationKeys = {
     onlineUsers: 'Online Users',
     send: 'Envoyer',
     inputPlaceholder: 'Tapez un message...',
+    noMessages: 'No messages yet',
+    noMessagesHint: 'Send the first message to start the chat',
     mention: 'Mentionner',
     reply: 'Répondre',
     copy: 'Copier',
@@ -90,6 +94,7 @@ const fr: TranslationKeys = {
     transferOwnership: 'Transférer la propriété',
     defaultRoomName: 'Chat Room',
     kicked: 'You have been kicked from the chat room',
+    nicknameTaken: 'This nickname is already taken',
   },
 
   users: {
@@ -152,6 +157,7 @@ const fr: TranslationKeys = {
     followSystem: 'Suivre le système',
     followSystemDesc: 'Détecter automatiquement la langue du système',
     zhCN: '中文（简体）',
+    zhTW: '中文（繁體）',
     en: 'English',
     fr: 'Français',
     ru: 'Русский',
@@ -159,6 +165,8 @@ const fr: TranslationKeys = {
     ar: 'العربية',
     ja: '日本語',
     ko: '한국어',
+    fa: 'فارسی',
+    rtlNote: 'RTL',
   },
 
   connection: {

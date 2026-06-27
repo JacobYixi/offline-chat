@@ -26,6 +26,8 @@ const ja: TranslationKeys = {
     nickname: 'ニックネームを設定',
     nicknamePlaceholder: 'ニックネームを入力',
     setNickname: '確認',
+    nicknameRequired: 'Please set a nickname first',
+    nicknameLengthError: 'Nickname must be 2-12 characters',
     nicknameSet: 'ニックネームが設定されました',
     scanning: '近くのサーバーをスキャン中...',
     scanningSubtitle: 'すべてのデバイスが同じネットワークにあることを確認してください',
@@ -76,6 +78,8 @@ const ja: TranslationKeys = {
     onlineUsers: 'Online Users',
     send: '送信',
     inputPlaceholder: 'メッセージを入力...',
+    noMessages: 'No messages yet',
+    noMessagesHint: 'Send the first message to start the chat',
     mention: 'メンション',
     reply: '返信',
     copy: 'コピー',
@@ -90,6 +94,7 @@ const ja: TranslationKeys = {
     transferOwnership: 'オーナー権を譲渡',
     defaultRoomName: 'Chat Room',
     kicked: 'You have been kicked from the chat room',
+    nicknameTaken: 'This nickname is already taken',
   },
 
   users: {
@@ -152,6 +157,7 @@ const ja: TranslationKeys = {
     followSystem: 'システムに従う',
     followSystemDesc: 'システム言語を自動検出',
     zhCN: '中文（简体）',
+    zhTW: '中文（繁體）',
     en: 'English',
     fr: 'Français',
     ru: 'Русский',
@@ -159,6 +165,8 @@ const ja: TranslationKeys = {
     ar: 'العربية',
     ja: '日本語',
     ko: '한국어',
+    fa: 'فارسی',
+    rtlNote: 'RTL',
   },
 
   connection: {

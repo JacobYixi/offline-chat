@@ -1,6 +1,6 @@
 /**
  * i18n 国际化模块
- * 支持 8 种语言：中文、英文、法文、俄文、西班牙文、阿拉伯文、日文、韩文
+ * 支持 10 种语言：中文简体、中文繁体、英文、法文、俄文、西班牙文、阿拉伯文、波斯文、日文、韩文
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -11,22 +11,26 @@ import { SupportedLanguage, RTL_LANGUAGES, LanguageConfig, TranslationKeys } fro
 
 // 导入所有翻译文件
 import zhCN from './translations/zh-CN';
+import zhTW from './translations/zh-TW';
 import en from './translations/en';
 import fr from './translations/fr';
 import ru from './translations/ru';
 import es from './translations/es';
 import ar from './translations/ar';
+import fa from './translations/fa';
 import ja from './translations/ja';
 import ko from './translations/ko';
 
 // 语言配置
 export const LANGUAGE_CONFIGS: Record<SupportedLanguage, LanguageConfig> = {
-  'zh-CN': { code: 'zh-CN', name: '中文（简体）', nameEn: 'Chinese', isRTL: false },
+  'zh-CN': { code: 'zh-CN', name: '中文（简体）', nameEn: 'Chinese Simplified', isRTL: false },
+  'zh-TW': { code: 'zh-TW', name: '中文（繁體）', nameEn: 'Chinese Traditional', isRTL: false },
   'en': { code: 'en', name: 'English', nameEn: 'English', isRTL: false },
   'fr': { code: 'fr', name: 'Français', nameEn: 'French', isRTL: false },
   'ru': { code: 'ru', name: 'Русский', nameEn: 'Russian', isRTL: false },
   'es': { code: 'es', name: 'Español', nameEn: 'Spanish', isRTL: false },
   'ar': { code: 'ar', name: 'العربية', nameEn: 'Arabic', isRTL: true },
+  'fa': { code: 'fa', name: 'فارسی', nameEn: 'Persian', isRTL: true },
   'ja': { code: 'ja', name: '日本語', nameEn: 'Japanese', isRTL: false },
   'ko': { code: 'ko', name: '한국어', nameEn: 'Korean', isRTL: false },
 };
@@ -34,11 +38,13 @@ export const LANGUAGE_CONFIGS: Record<SupportedLanguage, LanguageConfig> = {
 // 翻译文件映射
 const translations: Record<SupportedLanguage, TranslationKeys> = {
   'zh-CN': zhCN,
+  'zh-TW': zhTW,
   'en': en,
   'fr': fr,
   'ru': ru,
   'es': es,
   'ar': ar,
+  'fa': fa,
   'ja': ja,
   'ko': ko,
 };

@@ -191,6 +191,13 @@ function handleAuth(clientId: string, payload: any) {
     return;
   }
 
+  // 检查昵称是否重复
+  const existingUser = Array.from(state.users.values()).find(u => u.nickname === nickname);
+  if (existingUser) {
+    sendToClient(clientId, { type: 'auth:rejected', payload: { reason: 'nickname_taken' } });
+    return;
+  }
+
   // 检查是否需要审批
   if (state.config.requireApproval && !isOwner(clientId)) {
     state.pendingApprovals.set(deviceId, {
