@@ -43,6 +43,8 @@ interface ServerState {
   groups: Map<string, SmallGroup>;
   blacklist: Set<string>;
   pendingApprovals: Map<string, { deviceId: string; nickname: string; message: string; timestamp: number }>;
+  // 记录每个 deviceId 对应的已分配昵称（用于断线重连时恢复）
+  deviceNicknames: Map<string, string>;
 }
 
 // 全局服务器状态
@@ -67,6 +69,7 @@ const state: ServerState = {
   groups: new Map(),
   blacklist: new Set(),
   pendingApprovals: new Map(),
+  deviceNicknames: new Map(),
 };
 
 // 事件监听器
@@ -191,13 +194,21 @@ function handleAuth(clientId: string, payload: any) {
     return;
   }
 
-  // 检查昵称是否重复，如果重复则自动加编号
-  let finalNickname = nickname;
-  let suffix = 1;
-  const existingUsers = Array.from(state.users.values());
-  while (existingUsers.some(u => u.nickname === finalNickname)) {
-    suffix++;
-    finalNickname = `${nickname}#${suffix}`;
+  // 检查昵称：如果该 deviceId 之前有分配过昵称（断线重连），则恢复原昵称
+  // 否则检查是否重名，如果重复则自动加编号
+  let finalNickname: string = state.deviceNicknames.get(deviceId) || '';
+  
+  if (!finalNickname) {
+    // 新设备，检查重名
+    finalNickname = nickname;
+    let suffix = 1;
+    const existingUsers = Array.from(state.users.values());
+    while (existingUsers.some(u => u.nickname === finalNickname)) {
+      suffix++;
+      finalNickname = `${nickname}#${suffix}`;
+    }
+    // 记录分配的昵称
+    state.deviceNicknames.set(deviceId, finalNickname);
   }
 
   // 检查是否需要审批
