@@ -3,8 +3,8 @@
  * 允许用户选择应用显示语言
  */
 
-import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { Screen } from '@/components/Screen';
@@ -53,36 +53,38 @@ export default function LanguageScreen() {
 
   return (
     <Screen>
-      <SafeAreaView className="flex-1 bg-background">
+      <SafeAreaView style={styles.container}>
         {/* 顶部导航栏 */}
-        <View className="flex-row items-center px-4 py-3 border-b border-border/30">
+        <View style={styles.header}>
           <TouchableOpacity
             onPress={() => router.back()}
-            className="w-10 h-10 items-center justify-center"
+            style={styles.backButton}
           >
             <FontAwesome6 name="arrow-left" size={20} color="#E2E8F0" />
           </TouchableOpacity>
-          <Text className="flex-1 text-center text-lg font-semibold text-foreground">
+          <Text style={styles.headerTitle}>
             {t('language.title')}
           </Text>
-          <View className="w-10" />
+          <View style={styles.headerSpacer} />
         </View>
 
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {/* 跟随系统选项 */}
           <TouchableOpacity
-            className={`mx-4 mt-4 flex-row items-center px-4 py-4 rounded-2xl ${
-              isSelected('system') ? 'bg-primary/10 border border-primary/30' : 'bg-surface-container'
-            }`}
+            style={[
+              styles.languageCard,
+              isSelected('system') && styles.languageCardSelected,
+            ]}
             onPress={() => handleSelectLanguage('system')}
           >
-            <View className="flex-1">
-              <Text className={`text-base font-medium ${
-                isSelected('system') ? 'text-primary' : 'text-foreground'
-              }`}>
+            <View style={styles.languageCardContent}>
+              <Text style={[
+                styles.languageName,
+                isSelected('system') && styles.languageNameSelected,
+              ]}>
                 {t('language.followSystem')}
               </Text>
-              <Text className="text-xs text-muted mt-0.5">
+              <Text style={styles.languageDesc}>
                 {t('language.followSystemDesc')}
               </Text>
             </View>
@@ -92,27 +94,29 @@ export default function LanguageScreen() {
           </TouchableOpacity>
 
           {/* 分割线 */}
-          <View className="mx-4 my-4 h-px bg-border/20" />
+          <View style={styles.divider} />
 
           {/* 语言列表 */}
-          <View className="px-4 pb-6">
+          <View style={styles.languageList}>
             {LANGUAGE_LIST.filter(item => item.code !== 'system').map((item, index) => (
               <TouchableOpacity
                 key={item.code}
-                className={`flex-row items-center px-4 py-4 rounded-2xl mb-2 ${
-                  isSelected(item.code) ? 'bg-primary/10 border border-primary/30' : 'bg-surface-container'
-                }`}
+                style={[
+                  styles.languageItem,
+                  isSelected(item.code) && styles.languageCardSelected,
+                ]}
                 onPress={() => handleSelectLanguage(item.code)}
               >
-                <View className="flex-1 flex-row items-center">
-                  <Text className={`text-base ${
-                    isSelected(item.code) ? 'text-primary font-medium' : 'text-foreground'
-                  }`}>
+                <View style={styles.languageItemContent}>
+                  <Text style={[
+                    styles.languageItemName,
+                    isSelected(item.code) && styles.languageNameSelected,
+                  ]}>
                     {t(item.name)}
                   </Text>
                   {item.isRTL && (
-                    <View className="ml-2 px-2 py-0.5 rounded bg-amber-500/20">
-                      <Text className="text-xs text-amber-400">RTL</Text>
+                    <View style={styles.rtlBadge}>
+                      <Text style={styles.rtlBadgeText}>RTL</Text>
                     </View>
                   )}
                 </View>
@@ -127,3 +131,108 @@ export default function LanguageScreen() {
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#0F1419',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(148, 163, 184, 0.3)',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#E2E8F0',
+  },
+  headerSpacer: {
+    width: 40,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  languageCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginTop: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderRadius: 16,
+    backgroundColor: '#1E293B',
+  },
+  languageCardSelected: {
+    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(99, 102, 241, 0.3)',
+  },
+  languageCardContent: {
+    flex: 1,
+  },
+  languageName: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#E2E8F0',
+  },
+  languageNameSelected: {
+    color: '#6366F1',
+    fontWeight: '500',
+  },
+  languageDesc: {
+    fontSize: 12,
+    color: '#94A3B8',
+    marginTop: 2,
+  },
+  divider: {
+    marginHorizontal: 16,
+    marginVertical: 16,
+    height: 1,
+    backgroundColor: 'rgba(148, 163, 184, 0.2)',
+  },
+  languageList: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+  },
+  languageItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderRadius: 16,
+    marginBottom: 8,
+    backgroundColor: '#1E293B',
+  },
+  languageItemContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  languageItemName: {
+    fontSize: 16,
+    color: '#E2E8F0',
+  },
+  rtlBadge: {
+    marginLeft: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+  },
+  rtlBadgeText: {
+    fontSize: 12,
+    color: '#F59E0B',
+  },
+});

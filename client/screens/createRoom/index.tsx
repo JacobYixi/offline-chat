@@ -15,8 +15,8 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { Screen } from '@/components/Screen';
 import { startServer, addServerListener } from '@/utils/mobileServer';
@@ -111,31 +111,31 @@ export default function CreateRoomScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <SafeAreaView className="flex-1 bg-background">
+        <View style={styles.container}>
           {/* 顶部导航栏 */}
-          <View className="flex-row items-center px-4 py-3 border-b border-border/30">
+          <View style={styles.header}>
             <TouchableOpacity
               onPress={() => router.back()}
-              className="w-10 h-10 items-center justify-center"
+              style={styles.backButton}
             >
               <FontAwesome6 name="arrow-left" size={20} color="#E2E8F0" />
             </TouchableOpacity>
-            <Text className="flex-1 text-center text-lg font-semibold text-foreground">
+            <Text style={styles.headerTitle}>
               {t('createRoom.title')}
             </Text>
-            <View className="w-10" />
+            <View style={styles.backButton} />
           </View>
 
-          <ScrollView className="flex-1 px-4 py-6" showsVerticalScrollIndicator={false}>
+          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
             {/* 房间名称 */}
-            <View className="mb-6">
-              <Text className="text-sm font-medium text-muted-foreground mb-2">
+            <View style={styles.section}>
+              <Text style={styles.label}>
                 {t('createRoom.roomName')}
               </Text>
-              <View className="bg-surface-container rounded-2xl px-4 py-3.5 flex-row items-center">
+              <View style={styles.inputContainer}>
                 <FontAwesome6 name="pen" size={16} color="#64748B" />
                 <TextInput
-                  className="flex-1 ml-3 text-base text-foreground"
+                  style={styles.input}
                   placeholder={t('createRoom.roomNamePlaceholder')}
                   placeholderTextColor="#64748B"
                   value={roomName}
@@ -144,20 +144,20 @@ export default function CreateRoomScreen() {
                   returnKeyType="next"
                 />
               </View>
-              <Text className="text-xs text-muted mt-1.5 ml-1">
+              <Text style={styles.hint}>
                 {t('createRoom.roomNameHint')}
               </Text>
             </View>
 
             {/* 房间密码 */}
-            <View className="mb-6">
-              <Text className="text-sm font-medium text-muted-foreground mb-2">
+            <View style={styles.section}>
+              <Text style={styles.label}>
                 {t('createRoom.password')}
               </Text>
-              <View className="bg-surface-container rounded-2xl px-4 py-3.5 flex-row items-center">
+              <View style={styles.inputContainer}>
                 <FontAwesome6 name="lock" size={16} color="#64748B" />
                 <TextInput
-                  className="flex-1 ml-3 text-base text-foreground"
+                  style={styles.input}
                   placeholder={t('createRoom.passwordPlaceholder')}
                   placeholderTextColor="#64748B"
                   value={password}
@@ -167,19 +167,19 @@ export default function CreateRoomScreen() {
                   secureTextEntry
                 />
               </View>
-              <Text className="text-xs text-muted mt-1.5 ml-1">
+              <Text style={styles.hint}>
                 {t('createRoom.passwordHint')}
               </Text>
             </View>
 
             {/* 加入审批 */}
-            <View className="mb-6">
-              <View className="flex-row items-center justify-between bg-surface-container rounded-2xl px-4 py-4">
-                <View className="flex-row items-center flex-1">
-                  <View className="w-8 h-8 rounded-full bg-primary/20 items-center justify-center mr-3">
+            <View style={styles.section}>
+              <View style={styles.switchRow}>
+                <View style={styles.switchLabelRow}>
+                  <View style={styles.iconCircle}>
                     <FontAwesome6 name="user-check" size={14} color="#6366F1" />
                   </View>
-                  <Text className="text-base text-foreground flex-1">
+                  <Text style={styles.switchLabel}>
                     {t('createRoom.requireApproval')}
                   </Text>
                 </View>
@@ -194,11 +194,11 @@ export default function CreateRoomScreen() {
 
             {/* 审批过期时间 */}
             {requireApproval && (
-              <View className="mb-6">
-                <Text className="text-sm font-medium text-muted-foreground mb-2">
+              <View style={styles.section}>
+                <Text style={styles.label}>
                   {t('createRoom.approvalExpiry')}
                 </Text>
-                <View className="flex-row flex-wrap gap-2">
+                <View style={styles.optionsRow}>
                   {[
                     { value: 'never', label: t('createRoom.expiryNever') },
                     { value: '1h', label: t('createRoom.expiry1Hour') },
@@ -207,17 +207,17 @@ export default function CreateRoomScreen() {
                   ].map((option) => (
                     <TouchableOpacity
                       key={option.value}
-                      className={`px-4 py-2.5 rounded-xl ${
-                        approvalExpiry === option.value
-                          ? 'bg-primary'
-                          : 'bg-surface-container'
-                      }`}
+                      style={[
+                        styles.optionButton,
+                        approvalExpiry === option.value && styles.optionButtonActive,
+                      ]}
                       onPress={() => setApprovalExpiry(option.value as ApprovalExpiry)}
                     >
                       <Text
-                        className={`text-sm font-medium ${
-                          approvalExpiry === option.value ? 'text-foreground' : 'text-muted'
-                        }`}
+                        style={[
+                          styles.optionText,
+                          approvalExpiry === option.value && styles.optionTextActive,
+                        ]}
                       >
                         {option.label}
                       </Text>
@@ -228,16 +228,16 @@ export default function CreateRoomScreen() {
             )}
 
             {/* 高级设置 */}
-            <View className="mb-6">
+            <View style={styles.section}>
               <TouchableOpacity
-                className="flex-row items-center justify-between bg-surface-container rounded-2xl px-4 py-4"
+                style={styles.advancedHeader}
                 onPress={() => setShowAdvanced(!showAdvanced)}
               >
-                <View className="flex-row items-center">
-                  <View className="w-8 h-8 rounded-full bg-primary/20 items-center justify-center mr-3">
+                <View style={styles.switchLabelRow}>
+                  <View style={styles.iconCircle}>
                     <FontAwesome6 name="gear" size={14} color="#6366F1" />
                   </View>
-                  <Text className="text-base text-foreground">
+                  <Text style={styles.switchLabel}>
                     {t('createRoom.advancedSettings')}
                   </Text>
                 </View>
@@ -250,14 +250,14 @@ export default function CreateRoomScreen() {
               </TouchableOpacity>
 
               {showAdvanced && (
-                <View className="mt-3 bg-surface-container/50 rounded-2xl p-4">
+                <View style={styles.advancedContent}>
                   {/* 端到端加密 */}
-                  <View className="flex-row items-center justify-between mb-4">
-                    <View className="flex-1 mr-4">
-                      <Text className="text-base text-foreground mb-1">
+                  <View style={styles.advancedRow}>
+                    <View style={styles.advancedLabelContainer}>
+                      <Text style={styles.advancedLabel}>
                         {t('createRoom.encryption')}
                       </Text>
-                      <Text className="text-xs text-muted">
+                      <Text style={styles.advancedHint}>
                         {t('createRoom.encryptionHint')}
                       </Text>
                     </View>
@@ -270,11 +270,11 @@ export default function CreateRoomScreen() {
                   </View>
 
                   {/* 消息伪装 */}
-                  <View className="border-t border-border/20 pt-4">
-                    <Text className="text-sm font-medium text-muted-foreground mb-2">
+                  <View style={styles.disguiseSection}>
+                    <Text style={styles.label}>
                       {t('createRoom.disguiseType')}
                     </Text>
-                    <View className="flex-row flex-wrap gap-2">
+                    <View style={styles.optionsRow}>
                       {[
                         { value: 'none', label: t('createRoom.disguiseNone') },
                         { value: 'weather', label: t('createRoom.disguiseWeather') },
@@ -284,17 +284,17 @@ export default function CreateRoomScreen() {
                       ].map((option) => (
                         <TouchableOpacity
                           key={option.value}
-                          className={`px-3 py-2 rounded-lg ${
-                            disguiseType === option.value
-                              ? 'bg-primary'
-                              : 'bg-background'
-                          }`}
+                          style={[
+                            styles.disguiseButton,
+                            disguiseType === option.value && styles.disguiseButtonActive,
+                          ]}
                           onPress={() => setDisguiseType(option.value as DisguiseType)}
                         >
                           <Text
-                            className={`text-xs font-medium ${
-                              disguiseType === option.value ? 'text-foreground' : 'text-muted'
-                            }`}
+                            style={[
+                              styles.disguiseText,
+                              disguiseType === option.value && styles.disguiseTextActive,
+                            ]}
                           >
                             {option.label}
                           </Text>
@@ -308,38 +308,225 @@ export default function CreateRoomScreen() {
           </ScrollView>
 
           {/* 底部创建按钮 */}
-          <View className="px-4 pb-6 pt-3 border-t border-border/30 bg-background">
+          <View style={styles.footer}>
             <TouchableOpacity
-              className="bg-primary rounded-2xl py-4 items-center justify-center flex-row"
+              style={styles.createButton}
               onPress={handleCreateRoom}
               disabled={isCreating}
-              style={{
-                shadowColor: '#6366F1',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-                elevation: 8,
-              }}
             >
               {isCreating ? (
                 <>
                   <ActivityIndicator color="#FFF" size="small" />
-                  <Text className="text-foreground text-base font-semibold ml-2">
+                  <Text style={styles.createButtonText}>
                     {t('createRoom.creating')}
                   </Text>
                 </>
               ) : (
                 <>
                   <FontAwesome6 name="play" size={16} color="#FFF" style={{ marginRight: 8 }} />
-                  <Text className="text-foreground text-base font-semibold">
+                  <Text style={styles.createButtonText}>
                     {t('createRoom.createButton')}
                   </Text>
                 </>
               )}
             </TouchableOpacity>
           </View>
-        </SafeAreaView>
+        </View>
       </KeyboardAvoidingView>
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#0F172A',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(148, 163, 184, 0.3)',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#E2E8F0',
+  },
+  scrollView: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#94A3B8',
+    marginBottom: 8,
+  },
+  inputContainer: {
+    backgroundColor: '#1E293B',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  input: {
+    flex: 1,
+    marginLeft: 12,
+    fontSize: 16,
+    color: '#E2E8F0',
+  },
+  hint: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 6,
+    marginLeft: 4,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#1E293B',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  switchLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  iconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(99, 102, 241, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  switchLabel: {
+    fontSize: 16,
+    color: '#E2E8F0',
+    flex: 1,
+  },
+  optionsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  optionButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: '#1E293B',
+  },
+  optionButtonActive: {
+    backgroundColor: '#6366F1',
+  },
+  optionText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#64748B',
+  },
+  optionTextActive: {
+    color: '#E2E8F0',
+  },
+  advancedHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#1E293B',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  advancedContent: {
+    marginTop: 12,
+    backgroundColor: 'rgba(30, 41, 59, 0.5)',
+    borderRadius: 16,
+    padding: 16,
+  },
+  advancedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  advancedLabelContainer: {
+    flex: 1,
+    marginRight: 16,
+  },
+  advancedLabel: {
+    fontSize: 16,
+    color: '#E2E8F0',
+    marginBottom: 4,
+  },
+  advancedHint: {
+    fontSize: 12,
+    color: '#64748B',
+  },
+  disguiseSection: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(148, 163, 184, 0.2)',
+    paddingTop: 16,
+  },
+  disguiseButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#0F172A',
+  },
+  disguiseButtonActive: {
+    backgroundColor: '#6366F1',
+  },
+  disguiseText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#64748B',
+  },
+  disguiseTextActive: {
+    color: '#E2E8F0',
+  },
+  footer: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(148, 163, 184, 0.3)',
+    backgroundColor: '#0F172A',
+  },
+  createButton: {
+    backgroundColor: '#6366F1',
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    shadowColor: '#6366F1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  createButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
