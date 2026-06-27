@@ -295,11 +295,9 @@ const RawScreen = ({
             {wrapScrollableWithKeyboardAvoid(children)}
           </View>
         ) : (
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss} disabled={Platform.OS === 'web'}>
-            <View style={[styles.innerContainer, style]}>
-              {children}
-            </View>
-          </TouchableWithoutFeedback>
+          <View style={[styles.innerContainer, style]} pointerEvents="box-none">
+            {children}
+          </View>
         )
       )}
     </View>
