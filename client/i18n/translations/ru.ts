@@ -102,6 +102,8 @@ const ru: TranslationKeys = {
     smallGroups: 'Small Groups',
     selectDisguise: 'Select Disguise',
     reportUser: 'Report User',
+    reportedUser: 'Пользователь, на которого жалуются',
+    reportReasonPlaceholder: 'Введите причину жалобы...',
     reportReason: 'Report Reason',
     submitReport: 'Submit Report',
   },
@@ -159,6 +161,13 @@ const ru: TranslationKeys = {
     pending: 'Ожидание одобрения',
     approved: 'Одобрено',
     rejected: 'Отклонено',
+  },
+
+  nickname: {
+    title: "Укажите свой никнейм",
+    subtitle: "Имя, отображаемое в чате",
+    placeholder: "Введите никнейм (2-12 символов)",
+    startChat: "Начать чат",
   },
 
   language: {

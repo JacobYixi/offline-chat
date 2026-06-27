@@ -102,6 +102,8 @@ const ko: TranslationKeys = {
     smallGroups: 'Small Groups',
     selectDisguise: 'Select Disguise',
     reportUser: 'Report User',
+    reportedUser: '신고 대상',
+    reportReasonPlaceholder: '신고 사유 입력...',
     reportReason: 'Report Reason',
     submitReport: 'Submit Report',
   },
@@ -159,6 +161,13 @@ const ko: TranslationKeys = {
     pending: '승인 대기 중',
     approved: '승인됨',
     rejected: '거절됨',
+  },
+
+  nickname: {
+    title: "닉네임 설정",
+    subtitle: "채팅에서 표시되는 이름",
+    placeholder: "닉네임 입력 (2-12자)",
+    startChat: "채팅 시작",
   },
 
   language: {

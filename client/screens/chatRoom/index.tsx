@@ -405,7 +405,7 @@ export default function ChatRoomScreen() {
         {isReconnecting && (
           <View style={styles.reconnectBanner}>
             <ActivityIndicator size="small" color="#fff" />
-            <Text style={styles.reconnectText}>连接已断开，正在重连...</Text>
+            <Text style={styles.reconnectText}>{t('connection.reconnecting')}</Text>
           </View>
         )}
 
@@ -446,7 +446,7 @@ export default function ChatRoomScreen() {
               style={styles.menuItem}
             >
               <FontAwesome6 name="mask" size={16} color="#fff" />
-              <Text style={styles.menuItemText}>伪装模式</Text>
+              <Text style={styles.menuItemText}>{t('chat.disguiseMode')}</Text>
             </TouchableOpacity>
             {isOwner && (
               <TouchableOpacity
@@ -457,7 +457,7 @@ export default function ChatRoomScreen() {
                 style={styles.menuItem}
               >
                 <FontAwesome6 name="crown" size={16} color="#F59E0B" />
-                <Text style={styles.menuItemText}>控制面板</Text>
+                <Text style={styles.menuItemText}>{t('chat.controlPanel')}</Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity
@@ -468,7 +468,7 @@ export default function ChatRoomScreen() {
               style={styles.menuItem}
             >
               <FontAwesome6 name="users" size={16} color="#fff" />
-              <Text style={styles.menuItemText}>小群</Text>
+              <Text style={styles.menuItemText}>{t('chat.smallGroups')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -701,20 +701,20 @@ export default function ChatRoomScreen() {
         >
           <View style={styles.reportModal}>
             <View style={styles.reportHeader}>
-              <Text style={styles.reportTitle}>举报用户</Text>
+              <Text style={styles.reportTitle}>{t("chat.reportUser")}</Text>
               <TouchableOpacity onPress={() => setShowReportModal(false)}>
                 <FontAwesome6 name="xmark" size={20} color="#fff" />
               </TouchableOpacity>
             </View>
             <Text style={styles.reportLabel}>
-              被举报人: {reportTarget?.nickname}
+              {t("chat.reportedUser")}: {reportTarget?.nickname}
             </Text>
-            <Text style={styles.reportLabel}>举报原因:</Text>
+            <Text style={styles.reportLabel}>{t("chat.reportReason")}:</Text>
             <TextInput
               style={styles.reportInput}
               value={reportReason}
               onChangeText={setReportReason}
-              placeholder="请输入举报原因..."
+              placeholder={t("chat.reportReasonPlaceholder")}
               placeholderTextColor="#64748B"
               multiline
             />
@@ -726,7 +726,7 @@ export default function ChatRoomScreen() {
               onPress={handleReport}
               disabled={!reportReason.trim()}
             >
-              <Text style={styles.reportSubmitText}>提交举报</Text>
+              <Text style={styles.reportSubmitText}>{t("chat.submitReport")}</Text>
             </TouchableOpacity>
           </View>
         </Modal>

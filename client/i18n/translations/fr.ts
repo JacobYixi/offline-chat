@@ -102,6 +102,8 @@ const fr: TranslationKeys = {
     smallGroups: 'Small Groups',
     selectDisguise: 'Select Disguise',
     reportUser: 'Report User',
+    reportedUser: 'Utilisateur signalé',
+    reportReasonPlaceholder: 'Entrez la raison du signalement...',
     reportReason: 'Report Reason',
     submitReport: 'Submit Report',
   },
@@ -159,6 +161,13 @@ const fr: TranslationKeys = {
     pending: 'En attente d\'approbation',
     approved: 'Approuvé',
     rejected: 'Rejeté',
+  },
+
+  nickname: {
+    title: "Définissez votre pseudo",
+    subtitle: "Nom affiché dans le chat",
+    placeholder: "Entrez un pseudo (2-12 caractères)",
+    startChat: "Démarrer le chat",
   },
 
   language: {

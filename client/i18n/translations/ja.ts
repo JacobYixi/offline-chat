@@ -102,6 +102,8 @@ const ja: TranslationKeys = {
     smallGroups: 'Small Groups',
     selectDisguise: 'Select Disguise',
     reportUser: 'Report User',
+    reportedUser: '通報されるユーザー',
+    reportReasonPlaceholder: '通報理由を入力...',
     reportReason: 'Report Reason',
     submitReport: 'Submit Report',
   },
@@ -159,6 +161,13 @@ const ja: TranslationKeys = {
     pending: '承認待ち',
     approved: '承認済み',
     rejected: '拒否されました',
+  },
+
+  nickname: {
+    title: "ニックネームを設定",
+    subtitle: "チャットで表示される名前",
+    placeholder: "ニックネームを入力（2-12文字）",
+    startChat: "チャット開始",
   },
 
   language: {

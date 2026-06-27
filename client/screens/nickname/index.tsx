@@ -11,12 +11,14 @@ import { Screen } from '@/components/Screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeRouter } from '@/hooks/useSafeRouter';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { useTranslation } from '@/i18n';
 
 const NICKNAME_KEY = '@offline_chat_nickname';
 
 export default function NicknameScreen() {
   const [nickname, setNickname] = useState('');
   const router = useSafeRouter();
+  const { t } = useTranslation();
 
   const handleSave = async () => {
     const trimmed = nickname.trim();
@@ -33,8 +35,8 @@ export default function NicknameScreen() {
           <View style={styles.iconContainer}>
             <FontAwesome6 name="user-pen" size={32} color="#6C63FF" />
           </View>
-          <Text style={styles.title}>设置你的昵称</Text>
-          <Text style={styles.subtitle}>在聊天中显示的名字，随时可以修改</Text>
+          <Text style={styles.title}>{t('nickname.title')}</Text>
+          <Text style={styles.subtitle}>{t('nickname.subtitle')}</Text>
         </View>
 
         {/* Input */}
@@ -42,7 +44,7 @@ export default function NicknameScreen() {
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
-              placeholder="输入昵称..."
+              placeholder={t('nickname.placeholder')}
               placeholderTextColor="#B2BEC3"
               value={nickname}
               onChangeText={setNickname}
@@ -62,7 +64,7 @@ export default function NicknameScreen() {
           disabled={!nickname.trim()}
           activeOpacity={0.8}
         >
-          <Text style={styles.buttonText}>开始聊天</Text>
+          <Text style={styles.buttonText}>{t('nickname.startChat')}</Text>
         </TouchableOpacity>
       </View>
     </Screen>
