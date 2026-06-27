@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1, user-scalable=no" />
+
+  <!-- 字体 -->
+  <link href="https://lf-code-agent.coze.cn/obj/x-ai-cn/fonts/google/google-all-fonts.css" rel="stylesheet"/>
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 === */
+      --color-primary:              #6366F1;
+      --color-primary-container:    #4338CA;
+      --color-on-primary:           #ffffff;
+      /* === 背景 / 表面（深色科技风） === */
+      --color-background:                 #0F172A;
+      --color-surface-container-lowest:   #1E293B;
+      --color-surface:                    #1E293B;
+      --color-surface-container:          #334155;
+      --color-surface-container-high:     #475569;
+      --color-surface-container-highest:  #64748B;
+      /* === 文字 === */
+      --color-on-surface:           #F8FAFC;
+      --color-on-surface-variant:   #94A3B8;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #ef4444;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #475569;
+      --color-outline-variant:  #334155;
+      /* === 圆角 === */
+      --radius-sm:   0.5rem;
+      --radius-md:   0.75rem;
+      --radius-lg:   1rem;
+      --radius-xl:   1.25rem;
+      --radius-2xl:  1.5rem;
+      --radius-full: 9999px;
+      /* === 阴影（深色模式用发光效果） === */
+      --shadow-card:   0 4px 12px rgba(99,102,241,0.15);
+      --shadow-float:  0 10px 25px rgba(99,102,241,0.2);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.5);
+      /* === 字体 === */
+      --font-sans: "Space Grotesk", system-ui, sans-serif;
+    }
+  </style>
+
+  <style>
+    body {
+      min-height: max(812px, 100dvh);
+      font-family: system-ui, sans-serif;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%231E293B"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%2394A3B8" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans">
+
+  <!-- @nav:start 导航组件 -->
+  <header class="bg-background sticky top-0 z-40 h-14 flex items-center justify-between px-4">
+    <button id="btn-back" class="w-10 h-10 flex items-center justify-center text-on-surface-variant rounded-full hover:bg-surface-container active:bg-surface-container-high transition-colors">
+      <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    </button>
+    <h1 class="text-base font-semibold text-on-surface">语言设置</h1>
+    <div class="w-10"></div>
+  </header>
+  <!-- @nav:end 导航组件 -->
+
+  <main class="flex-1">
+    <!-- @main-content:start -->
+    <div class="px-4 pt-4 pb-8">
+
+      <!-- 语言列表容器 -->
+      <div id="language-list" class="bg-surface rounded-xl shadow-card overflow-hidden">
+
+        <!-- 语言项-跟随系统（默认选项，未选中） -->
+        <div id="lang-system" class="lang-item flex items-center px-4 py-4 hover:bg-surface-container active:bg-surface-container transition-colors cursor-pointer" data-lang="system">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-on-surface">跟随系统</p>
+            <p class="text-xs text-on-surface-variant mt-0.5">自动检测系统语言</p>
+          </div>
+        </div>
+
+        <!-- 分割线 -->
+        <div class="h-px bg-outline-variant/20 mx-4"></div>
+
+        <!-- 语言项-中文（简体）- 当前选中 -->
+        <div id="lang-zh" class="lang-item flex items-center px-4 py-4 bg-primary/10 transition-colors cursor-pointer" data-lang="zh-CN">
+          <p class="flex-1 text-sm font-medium text-primary">中文（简体）</p>
+          <i data-lucide="check" class="w-5 h-5 text-primary"></i>
+        </div>
+
+        <!-- 语言项-English -->
+        <div id="lang-en" class="lang-item flex items-center px-4 py-4 hover:bg-surface-container active:bg-surface-container transition-colors cursor-pointer" data-lang="en">
+          <p class="flex-1 text-sm font-medium text-on-surface">English</p>
+        </div>
+
+        <!-- 语言项-Français -->
+        <div id="lang-fr" class="lang-item flex items-center px-4 py-4 hover:bg-surface-container active:bg-surface-container transition-colors cursor-pointer" data-lang="fr">
+          <p class="flex-1 text-sm font-medium text-on-surface">Français</p>
+        </div>
+
+        <!-- 语言项-Русский -->
+        <div id="lang-ru" class="lang-item flex items-center px-4 py-4 hover:bg-surface-container active:bg-surface-container transition-colors cursor-pointer" data-lang="ru">
+          <p class="flex-1 text-sm font-medium text-on-surface">Русский</p>
+        </div>
+
+        <!-- 语言项-Español -->
+        <div id="lang-es" class="lang-item flex items-center px-4 py-4 hover:bg-surface-container active:bg-surface-container transition-colors cursor-pointer" data-lang="es">
+          <p class="flex-1 text-sm font-medium text-on-surface">Español</p>
+        </div>
+
+        <!-- 语言项-العربية（标注 RTL） -->
+        <div id="lang-ar" class="lang-item flex items-center px-4 py-4 hover:bg-surface-container active:bg-surface-container transition-colors cursor-pointer" data-lang="ar">
+          <p class="flex-1 text-sm font-medium text-on-surface">العربية</p>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-warning/15 text-warning mr-2">RTL</span>
+        </div>
+
+        <!-- 语言项-日本語 -->
+        <div id="lang-ja" class="lang-item flex items-center px-4 py-4 hover:bg-surface-container active:bg-surface-container transition-colors cursor-pointer" data-lang="ja">
+          <p class="flex-1 text-sm font-medium text-on-surface">日本語</p>
+        </div>
+
+        <!-- 语言项-한국어 -->
+        <div id="lang-ko" class="lang-item flex items-center px-4 py-4 hover:bg-surface-container active:bg-surface-container transition-colors cursor-pointer" data-lang="ko">
+          <p class="flex-1 text-sm font-medium text-on-surface">한국어</p>
+        </div>
+
+      </div>
+
+      <!-- 当前语言提示 -->
+      <p class="text-xs text-on-surface-variant text-center mt-4">切换语言后界面将立即刷新</p>
+
+    </div>
+    <!-- @main-content:end -->
+  </main>
+
+  <script>
+    function navPush(route) {
+      console.log('[原型演示] PUSH 到: ' + route);
+      window.location.href = route;
+    }
+
+    function navReplace(route) {
+      console.log('[原型演示] REPLACE 为: ' + route);
+      window.location.replace(route);
+    }
+
+    function navReset(route) {
+      console.log('[原型演示] RESET 到: ' + route);
+      window.location.href = route;
+    }
+
+    function navBack() {
+      console.log('[原型演示] BACK 返回上一页');
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = 'home.html';
+      }
+    }
+
+    $(function() {
+      // 返回按钮
+      $('#btn-back').on('click', function() {
+        navBack();
+      });
+
+      // 语言选择交互
+      // 点击任一语言选项后：
+      // 1. 移除所有选项的选中状态（清除背景高亮、文字颜色、勾选图标）
+      // 2. 为当前点击项添加选中状态（主色背景高亮、主色文字、勾选图标）
+      // 3. 短暂延迟后返回上一页，模拟"立即生效"
+      $('#language-list').on('click', '.lang-item', function() {
+        var $clicked = $(this);
+        var lang = $clicked.data('lang');
+        console.log('[原型演示] 选择语言: ' + lang);
+
+        // 移除所有项的选中样式
+        $('.lang-item').each(function() {
+          var $item = $(this);
+          $item.removeClass('bg-primary/10');
+          $item.find('p').first().removeClass('text-primary').addClass('text-on-surface');
+          $item.find('[data-lucide="check"]').remove();
+        });
+
+        // 为当前项添加选中样式
+        $clicked.addClass('bg-primary/10');
+        $clicked.find('p').first().removeClass('text-on-surface').addClass('text-primary');
+        $clicked.append('<i data-lucide="check" class="w-5 h-5 text-primary"></i>');
+
+        // 重新渲染图标
+        lucide.createIcons();
+
+        // 延迟返回上一页
+        setTimeout(function() {
+          navBack();
+        }, 300);
+      });
+    });
+  </script>
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>

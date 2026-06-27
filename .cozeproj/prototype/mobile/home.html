@@ -56,37 +56,6 @@
       min-height: max(812px, 100dvh);
       font-family: system-ui, sans-serif;
     }
-
-    /* 扫描脉冲动画 */
-    @keyframes pulse-ring {
-      0% { transform: scale(0.5); opacity: 0.8; }
-      100% { transform: scale(1.8); opacity: 0; }
-    }
-    @keyframes pulse-dot {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.15); }
-    }
-    .scan-ring {
-      animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    .scan-ring-delayed {
-      animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-      animation-delay: 0.6s;
-    }
-    .scan-ring-delayed-2 {
-      animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-      animation-delay: 1.2s;
-    }
-    .scan-dot {
-      animation: pulse-dot 2s ease-in-out infinite;
-    }
-
-    /* 信号强度条 */
-    .signal-bar {
-      width: 3px;
-      border-radius: 1px;
-      background: currentColor;
-    }
   </style>
 
   <!-- 图片兜底 -->
@@ -106,353 +75,244 @@
       img.src = 'data:image/svg+xml,' + svg;
     }, true);
   </script>
+
+  <!-- 雷达扫描动画 -->
+  <style>
+    @keyframes radar-pulse {
+      0% {
+        transform: scale(0.15);
+        opacity: 0.7;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 0;
+      }
+    }
+    @keyframes radar-glow {
+      0%, 100% {
+        box-shadow: 0 0 8px rgba(99,102,241,0.4), 0 0 20px rgba(99,102,241,0.1);
+      }
+      50% {
+        box-shadow: 0 0 16px rgba(99,102,241,0.7), 0 0 40px rgba(99,102,241,0.2);
+      }
+    }
+    @keyframes fade-in-up {
+      0% {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .radar-ring {
+      animation: radar-pulse 2.8s ease-out infinite;
+    }
+    .radar-center {
+      animation: radar-glow 2s ease-in-out infinite;
+    }
+    .server-card {
+      animation: fade-in-up 0.4s ease-out both;
+    }
+    .server-card:nth-child(2) { animation-delay: 0.1s; }
+    .server-card:nth-child(3) { animation-delay: 0.2s; }
+  </style>
 </head>
 
 <body class="bg-background text-on-surface font-sans">
 
-  <main class="flex-1 flex flex-col min-h-[100dvh]">
+  <main class="flex-1 overflow-y-auto pb-[env(safe-area-inset-bottom)]">
 
-    <!-- ========== 品牌区域 ========== -->
-    <div class="flex flex-col items-center pt-16 pb-8 px-6">
-      <!-- Logo -->
-      <div class="w-20 h-20 rounded-2xl bg-primary/15 flex items-center justify-center mb-5 shadow-card">
-        <i data-lucide="messages-square" class="w-10 h-10 text-primary"></i>
+    <!-- @main-content:start -->
+
+    <!-- 顶部栏：品牌 + 语言切换 -->
+    <header class="bg-background sticky top-0 z-40 h-14 flex items-center justify-between px-4">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 bg-primary/15 rounded-xl flex items-center justify-center">
+          <i data-lucide="message-circle" class="w-5 h-5 text-primary"></i>
+        </div>
+        <span class="text-lg font-bold text-on-surface tracking-tight">OfflineChat</span>
       </div>
-      <h1 class="text-2xl font-bold text-on-surface tracking-tight">OfflineChat</h1>
-      <p class="text-sm text-on-surface-variant mt-2">安全私密的离线聊天</p>
+      <button id="btn-language" class="w-10 h-10 flex items-center justify-center text-on-surface-variant rounded-full hover:bg-surface-container active:bg-surface-container-high transition-colors" aria-label="切换语言">
+        <i data-lucide="languages" class="w-5 h-5"></i>
+      </button>
+    </header>
+
+    <!-- 品牌副标题 -->
+    <div class="px-4 pt-1 pb-2">
+      <p class="text-sm text-on-surface-variant">安全私密的离线聊天</p>
     </div>
 
-    <!-- ========== 昵称设置区域（首次使用时显示） ========== -->
-    <div id="section-nickname" class="flex-1 flex flex-col px-6">
-      <div class="bg-surface rounded-2xl shadow-card p-6">
-        <div class="flex items-center gap-3 mb-5">
-          <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <i data-lucide="user" class="w-5 h-5 text-primary"></i>
+    <!-- 页面内容 -->
+    <div class="px-4 flex flex-col gap-5">
+
+      <!-- 昵称设置区域 -->
+      <div id="nickname-section" class="bg-surface rounded-xl shadow-card p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-7 h-7 bg-primary/10 rounded-lg flex items-center justify-center">
+            <i data-lucide="user" class="w-4 h-4 text-primary"></i>
           </div>
-          <div>
-            <h2 class="text-base font-semibold text-on-surface">设置昵称</h2>
-            <p class="text-xs text-on-surface-variant mt-0.5">2-12 个字符，用于聊天中显示身份</p>
-          </div>
+          <h2 class="text-base font-semibold text-on-surface">设置你的昵称</h2>
         </div>
-
-        <input id="input-nickname" type="text" maxlength="12" placeholder="请输入你的昵称"
-               class="w-full bg-surface-container border-none rounded-xl px-4 py-3.5 text-base
-                      text-on-surface placeholder:text-on-surface-variant/50
-                      focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
-
-        <p id="nickname-hint" class="text-xs text-on-surface-variant mt-2 pl-1">还可以输入 12 个字符</p>
-
-        <button id="btn-confirm-nickname" disabled
-                class="w-full bg-primary text-on-primary py-3.5 rounded-xl text-base font-semibold
-                       hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2
-                       mt-5 opacity-40 cursor-not-allowed">
-          <i data-lucide="arrow-right" class="w-5 h-5"></i>
-          下一步
-        </button>
-      </div>
-    </div>
-
-    <!-- ========== 服务端发现与连接区域（设置昵称后显示） ========== -->
-    <div id="section-discovery" class="flex-1 flex flex-col px-6 hidden">
-
-      <!-- 扫描动画区域 -->
-      <div id="scan-area" class="flex flex-col items-center py-8">
-        <div class="relative w-32 h-32 flex items-center justify-center">
-          <!-- 脉冲环 -->
-          <div class="absolute inset-0 rounded-full border-2 border-primary/30 scan-ring"></div>
-          <div class="absolute inset-0 rounded-full border-2 border-primary/20 scan-ring-delayed"></div>
-          <div class="absolute inset-0 rounded-full border-2 border-primary/10 scan-ring-delayed-2"></div>
-          <!-- 中心图标 -->
-          <div class="w-16 h-16 rounded-full bg-primary/15 flex items-center justify-center scan-dot z-10">
-            <i data-lucide="radar" class="w-8 h-8 text-primary"></i>
-          </div>
+        <p class="text-xs text-on-surface-variant mb-3">其他用户将通过昵称识别你</p>
+        <div class="flex gap-3">
+          <input id="input-nickname" class="flex-1 min-w-0 bg-surface-container border-none rounded-xl px-4 py-3 text-base text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="输入昵称..." />
+          <button id="btn-confirm-nickname" class="bg-primary text-on-primary px-5 py-3 rounded-xl text-base font-semibold hover:opacity-90 active:scale-[0.98] transition-all whitespace-nowrap">确认</button>
         </div>
-        <p id="scan-status" class="text-sm text-on-surface-variant mt-6">正在搜索附近的服务端...</p>
+        <!-- 昵称设置成功提示（默认隐藏） -->
+        <div id="nickname-success" class="hidden mt-3 flex items-center gap-2 text-success">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span class="text-sm font-medium">昵称已设置</span>
+        </div>
       </div>
 
-      <!-- 已发现的服务端列表 -->
-      <div id="server-list" class="flex-1">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">发现的服务端</h3>
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-success/15 text-success">3 个可用</span>
+      <!-- 服务端发现区域 -->
+      <div id="discovery-section">
+
+        <!-- 雷达扫描动画 -->
+        <div class="flex flex-col items-center pt-4 pb-2">
+          <div class="relative w-36 h-36 flex items-center justify-center">
+            <!-- 脉冲环 1 -->
+            <div class="radar-ring absolute inset-0 rounded-full border-2 border-primary/30" style="animation-delay: 0s;"></div>
+            <!-- 脉冲环 2 -->
+            <div class="radar-ring absolute inset-0 rounded-full border-2 border-primary/20" style="animation-delay: 0.9s;"></div>
+            <!-- 脉冲环 3 -->
+            <div class="radar-ring absolute inset-0 rounded-full border-2 border-primary/10" style="animation-delay: 1.8s;"></div>
+            <!-- 静态参考圆 -->
+            <div class="absolute inset-4 rounded-full border border-outline-variant/30"></div>
+            <div class="absolute inset-10 rounded-full border border-outline-variant/20"></div>
+            <!-- 中心发光点 -->
+            <div class="radar-center w-4 h-4 bg-primary rounded-full z-10"></div>
+          </div>
+          <p class="text-sm text-on-surface-variant mt-3">正在搜索附近的服务端...</p>
         </div>
 
-        <!-- 列表-服务端1（房主的聊天室，信号强） -->
-        <div id="server-item-1" class="server-item bg-surface rounded-xl shadow-card p-4 mb-3 cursor-pointer
-                                        hover:bg-surface-container active:bg-surface-container-high transition-colors"
-             data-server-id="server-001" data-server-name="房主的聊天室" data-needs-password="true" data-needs-approval="false">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <i data-lucide="wifi" class="w-6 h-6 text-primary"></i>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-base font-semibold text-on-surface truncate">房主的聊天室</p>
-              <div class="flex items-center gap-2 mt-1">
-                <!-- 信号强度：强 -->
-                <div class="flex items-end gap-0.5 text-success h-3.5">
-                  <div class="signal-bar h-1.5"></div>
-                  <div class="signal-bar h-2.5"></div>
-                  <div class="signal-bar h-3.5"></div>
+        <!-- 已发现的服务端列表 -->
+        <div class="mt-4 mb-4">
+          <h3 class="text-sm font-semibold text-on-surface-variant mb-3 px-0.5">已发现 3 个服务端</h3>
+
+          <!-- 列表-服务端1：房主的聊天室 -->
+          <div id="server-1" class="server-card bg-surface rounded-xl shadow-card p-4 mb-3 cursor-pointer hover:bg-surface-container active:bg-surface-container-high transition-colors" data-id="server-1">
+            <div class="flex items-center justify-between mb-2.5">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 bg-warning/10 rounded-lg flex items-center justify-center">
+                  <i data-lucide="lock" class="w-4.5 h-4.5 text-warning"></i>
                 </div>
-                <span class="text-xs text-on-surface-variant">信号强</span>
-                <span class="text-xs text-on-surface-variant">·</span>
-                <span class="text-xs text-on-surface-variant">192.168.1.100</span>
+                <span class="text-base font-semibold text-on-surface">房主的聊天室</span>
+              </div>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-warning/15 text-warning">需密码</span>
+            </div>
+            <div class="flex items-center gap-4 text-xs text-on-surface-variant">
+              <div class="flex items-center gap-1.5">
+                <!-- 信号强度：强 -->
+                <div class="flex items-end gap-0.5 h-3.5">
+                  <div class="w-1 h-1.5 bg-success rounded-sm"></div>
+                  <div class="w-1 h-2.5 bg-success rounded-sm"></div>
+                  <div class="w-1 h-3.5 bg-success rounded-sm"></div>
+                </div>
+                <span class="text-success font-medium">信号强</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                <span>5 人在线</span>
+              </div>
+              <div class="flex items-center gap-1 ml-auto">
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-on-surface-variant/50"></i>
               </div>
             </div>
-            <div class="flex flex-col items-end gap-1">
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-warning/15 text-warning">
-                <i data-lucide="lock" class="w-3 h-3 mr-1"></i>需密码
-              </span>
-              <span class="text-xs text-on-surface-variant">5 人在线</span>
-            </div>
           </div>
-        </div>
 
-        <!-- 列表-服务端2（旅行搭子群，信号中） -->
-        <div id="server-item-2" class="server-item bg-surface rounded-xl shadow-card p-4 mb-3 cursor-pointer
-                                        hover:bg-surface-container active:bg-surface-container-high transition-colors"
-             data-server-id="server-002" data-server-name="旅行搭子群" data-needs-password="false" data-needs-approval="true">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <i data-lucide="wifi" class="w-6 h-6 text-primary"></i>
+          <!-- 列表-服务端2：旅行搭子群 -->
+          <div id="server-2" class="server-card bg-surface rounded-xl shadow-card p-4 mb-3 cursor-pointer hover:bg-surface-container active:bg-surface-container-high transition-colors" data-id="server-2">
+            <div class="flex items-center justify-between mb-2.5">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <i data-lucide="shield-check" class="w-4.5 h-4.5 text-primary"></i>
+                </div>
+                <span class="text-base font-semibold text-on-surface">旅行搭子群</span>
+              </div>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/15 text-primary">需申请</span>
             </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-base font-semibold text-on-surface truncate">旅行搭子群</p>
-              <div class="flex items-center gap-2 mt-1">
+            <div class="flex items-center gap-4 text-xs text-on-surface-variant">
+              <div class="flex items-center gap-1.5">
                 <!-- 信号强度：中 -->
-                <div class="flex items-end gap-0.5 text-primary h-3.5">
-                  <div class="signal-bar h-1.5"></div>
-                  <div class="signal-bar h-2.5"></div>
-                  <div class="signal-bar h-3.5 opacity-30"></div>
+                <div class="flex items-end gap-0.5 h-3.5">
+                  <div class="w-1 h-1.5 bg-warning rounded-sm"></div>
+                  <div class="w-1 h-2.5 bg-warning rounded-sm"></div>
+                  <div class="w-1 h-3.5 bg-surface-container-high rounded-sm"></div>
                 </div>
-                <span class="text-xs text-on-surface-variant">信号中</span>
-                <span class="text-xs text-on-surface-variant">·</span>
-                <span class="text-xs text-on-surface-variant">192.168.1.105</span>
+                <span class="text-warning font-medium">信号中</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                <span>12 人在线</span>
+              </div>
+              <div class="flex items-center gap-1 ml-auto">
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-on-surface-variant/50"></i>
               </div>
             </div>
-            <div class="flex flex-col items-end gap-1">
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/15 text-primary">
-                <i data-lucide="user-check" class="w-3 h-3 mr-1"></i>需申请
-              </span>
-              <span class="text-xs text-on-surface-variant">12 人在线</span>
-            </div>
           </div>
-        </div>
 
-        <!-- 列表-服务端3（开放聊天，信号弱） -->
-        <div id="server-item-3" class="server-item bg-surface rounded-xl shadow-card p-4 mb-3 cursor-pointer
-                                        hover:bg-surface-container active:bg-surface-container-high transition-colors"
-             data-server-id="server-003" data-server-name="开放聊天" data-needs-password="false" data-needs-approval="false">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <i data-lucide="wifi" class="w-6 h-6 text-primary"></i>
+          <!-- 列表-服务端3：开放聊天 -->
+          <div id="server-3" class="server-card bg-surface rounded-xl shadow-card p-4 mb-3 cursor-pointer hover:bg-surface-container active:bg-surface-container-high transition-colors" data-id="server-3">
+            <div class="flex items-center justify-between mb-2.5">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 bg-success/10 rounded-lg flex items-center justify-center">
+                  <i data-lucide="unlock" class="w-4.5 h-4.5 text-success"></i>
+                </div>
+                <span class="text-base font-semibold text-on-surface">开放聊天</span>
+              </div>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-success/15 text-success">开放</span>
             </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-base font-semibold text-on-surface truncate">开放聊天</p>
-              <div class="flex items-center gap-2 mt-1">
+            <div class="flex items-center gap-4 text-xs text-on-surface-variant">
+              <div class="flex items-center gap-1.5">
                 <!-- 信号强度：弱 -->
-                <div class="flex items-end gap-0.5 text-on-surface-variant h-3.5">
-                  <div class="signal-bar h-1.5"></div>
-                  <div class="signal-bar h-2.5 opacity-30"></div>
-                  <div class="signal-bar h-3.5 opacity-30"></div>
+                <div class="flex items-end gap-0.5 h-3.5">
+                  <div class="w-1 h-1.5 bg-error rounded-sm"></div>
+                  <div class="w-1 h-2.5 bg-surface-container-high rounded-sm"></div>
+                  <div class="w-1 h-3.5 bg-surface-container-high rounded-sm"></div>
                 </div>
-                <span class="text-xs text-on-surface-variant">信号弱</span>
-                <span class="text-xs text-on-surface-variant">·</span>
-                <span class="text-xs text-on-surface-variant">192.168.1.112</span>
+                <span class="text-error font-medium">信号弱</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                <span>2 人在线</span>
+              </div>
+              <div class="flex items-center gap-1 ml-auto">
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-on-surface-variant/50"></i>
               </div>
             </div>
-            <div class="flex flex-col items-end gap-1">
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-success/15 text-success">
-                <i data-lucide="unlock" class="w-3 h-3 mr-1"></i>开放
-              </span>
-              <span class="text-xs text-on-surface-variant">2 人在线</span>
-            </div>
           </div>
         </div>
 
-        <!-- 列表-服务端4（技术讨论组，信号强） -->
-        <div id="server-item-4" class="server-item bg-surface rounded-xl shadow-card p-4 mb-3 cursor-pointer
-                                        hover:bg-surface-container active:bg-surface-container-high transition-colors"
-             data-server-id="server-004" data-server-name="技术讨论组" data-needs-password="true" data-needs-approval="true">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <i data-lucide="wifi" class="w-6 h-6 text-primary"></i>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-base font-semibold text-on-surface truncate">技术讨论组</p>
-              <div class="flex items-center gap-2 mt-1">
-                <!-- 信号强度：强 -->
-                <div class="flex items-end gap-0.5 text-success h-3.5">
-                  <div class="signal-bar h-1.5"></div>
-                  <div class="signal-bar h-2.5"></div>
-                  <div class="signal-bar h-3.5"></div>
-                </div>
-                <span class="text-xs text-on-surface-variant">信号强</span>
-                <span class="text-xs text-on-surface-variant">·</span>
-                <span class="text-xs text-on-surface-variant">192.168.1.88</span>
-              </div>
-            </div>
-            <div class="flex flex-col items-end gap-1">
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-warning/15 text-warning">
-                <i data-lucide="lock" class="w-3 h-3 mr-1"></i>需密码
-              </span>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/15 text-primary mt-1">
-                <i data-lucide="user-check" class="w-3 h-3 mr-1"></i>需申请
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 手动输入 IP 按钮 -->
-      <div class="mt-4 pb-6">
-        <button id="btn-manual-ip"
-                class="w-full bg-surface-container text-on-surface-variant border-none py-3.5 rounded-xl text-base font-semibold
-                       hover:bg-surface-container-high active:scale-[0.98] transition-all
-                       inline-flex items-center justify-center gap-2">
-          <i data-lucide="keyboard" class="w-5 h-5"></i>
-          手动输入服务端地址
-        </button>
-      </div>
-    </div>
-
-    <!-- ========== 手动输入 IP 区域（点击按钮后展开） ========== -->
-    <div id="section-manual-ip" class="px-6 hidden">
-      <div class="bg-surface rounded-2xl shadow-card p-6">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <i data-lucide="globe" class="w-5 h-5 text-primary"></i>
-          </div>
-          <div>
-            <h2 class="text-base font-semibold text-on-surface">手动连接</h2>
-            <p class="text-xs text-on-surface-variant mt-0.5">输入服务端的 IP 地址和端口</p>
-          </div>
-        </div>
-
-        <input id="input-ip" type="text" placeholder="例如：192.168.1.100:8080"
-               class="w-full bg-surface-container border-none rounded-xl px-4 py-3.5 text-base
-                      text-on-surface placeholder:text-on-surface-variant/50
-                      focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
-
-        <button id="btn-connect-manual"
-                class="w-full bg-primary text-on-primary py-3.5 rounded-xl text-base font-semibold
-                       hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2
-                       mt-4">
-          <i data-lucide="plug" class="w-5 h-5"></i>
-          连接
-        </button>
-
-        <button id="btn-cancel-manual"
-                class="w-full bg-surface-container text-on-surface-variant border-none py-3 rounded-xl text-sm font-medium
-                       hover:bg-surface-container-high active:scale-[0.98] transition-all mt-2">
-          取消
-        </button>
-      </div>
-    </div>
-
-    <!-- ========== 密码输入弹窗 ========== -->
-    <div id="modal-password" class="fixed inset-0 bg-black/60 z-50 flex items-end hidden">
-      <div class="bg-surface rounded-t-2xl w-full max-h-[80vh] overflow-y-auto p-6
-                  pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
-        <!-- 拖拽指示条 -->
-        <div class="w-10 h-1 bg-surface-container-high rounded-full mx-auto mb-6"></div>
-
-        <div class="flex items-center gap-3 mb-5">
-          <div class="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center">
-            <i data-lucide="lock" class="w-6 h-6 text-warning"></i>
-          </div>
-          <div>
-            <h2 class="text-lg font-bold text-on-surface">输入加入密码</h2>
-            <p id="password-server-name" class="text-sm text-on-surface-variant mt-0.5">房主的聊天室</p>
-          </div>
-        </div>
-
-        <p class="text-sm text-on-surface-variant mb-4">该服务端设置了密码保护，请输入 8 位密码以加入聊天</p>
-
-        <input id="input-password" type="password" maxlength="8" placeholder="请输入 8 位密码"
-               class="w-full bg-surface-container border-none rounded-xl px-4 py-3.5 text-base text-center tracking-[0.3em]
-                      text-on-surface placeholder:text-on-surface-variant/50 placeholder:tracking-normal
-                      focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
-
-        <p id="password-error" class="text-xs text-error mt-2 pl-1 hidden">密码错误，请重新输入</p>
-
-        <button id="btn-confirm-password"
-                class="w-full bg-primary text-on-primary py-3.5 rounded-xl text-base font-semibold
-                       hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2
-                       mt-5">
-          <i data-lucide="check" class="w-5 h-5"></i>
-          确认加入
-        </button>
-
-        <button id="btn-cancel-password"
-                class="w-full bg-surface-container text-on-surface-variant border-none py-3 rounded-xl text-sm font-medium
-                       hover:bg-surface-container-high active:scale-[0.98] transition-all mt-2">
-          取消
-        </button>
-      </div>
-    </div>
-
-    <!-- ========== 申请加入弹窗 ========== -->
-    <div id="modal-apply" class="fixed inset-0 bg-black/60 z-50 flex items-end hidden">
-      <div class="bg-surface rounded-t-2xl w-full max-h-[80vh] overflow-y-auto p-6
-                  pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
-        <!-- 拖拽指示条 -->
-        <div class="w-10 h-1 bg-surface-container-high rounded-full mx-auto mb-6"></div>
-
-        <div class="flex items-center gap-3 mb-5">
-          <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-            <i data-lucide="user-plus" class="w-6 h-6 text-primary"></i>
-          </div>
-          <div>
-            <h2 class="text-lg font-bold text-on-surface">申请加入</h2>
-            <p id="apply-server-name" class="text-sm text-on-surface-variant mt-0.5">旅行搭子群</p>
-          </div>
-        </div>
-
-        <p class="text-sm text-on-surface-variant mb-4">该服务端开启了申请制，请填写加入理由，等待房主审批</p>
-
-        <!-- 申请理由输入（待审批状态前显示） -->
-        <div id="apply-form">
-          <label class="text-sm font-medium text-on-surface-variant mb-2 block">申请理由</label>
-          <textarea id="input-reason" rows="4" placeholder="请简要说明加入理由..."
-                    class="w-full bg-surface-container border-none rounded-xl px-4 py-3 text-base
-                           text-on-surface placeholder:text-on-surface-variant/50
-                           focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors resize-none"></textarea>
-
-          <button id="btn-submit-apply"
-                  class="w-full bg-primary text-on-primary py-3.5 rounded-xl text-base font-semibold
-                         hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2
-                         mt-5">
-            <i data-lucide="send" class="w-5 h-5"></i>
-            提交申请
+        <!-- 操作按钮区 -->
+        <div class="flex flex-col gap-3 pb-4">
+          <button id="btn-create-room" class="w-full bg-primary text-on-primary py-3.5 rounded-xl text-base font-semibold hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2 shadow-float">
+            <i data-lucide="plus" class="w-5 h-5"></i>创建房间
+          </button>
+          <button id="btn-manual-ip" class="w-full bg-surface-container text-on-surface-variant border-none py-3.5 rounded-xl text-base font-semibold hover:bg-surface-container-high active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2">
+            <i data-lucide="keyboard" class="w-5 h-5"></i>手动输入服务端地址
           </button>
         </div>
 
-        <!-- 等待审批状态（提交申请后显示） -->
-        <div id="apply-waiting" class="hidden">
-          <div class="flex flex-col items-center py-6">
-            <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <i data-lucide="clock" class="w-8 h-8 text-primary"></i>
-            </div>
-            <h3 class="text-base font-semibold text-on-surface">申请已提交</h3>
-            <p class="text-sm text-on-surface-variant mt-2 text-center">正在等待房主审批，请耐心等候...</p>
-
-            <!-- 进度指示 -->
-            <div class="flex items-center gap-3 mt-6">
-              <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-              <div class="w-2 h-2 rounded-full bg-primary animate-pulse" style="animation-delay: 0.3s"></div>
-              <div class="w-2 h-2 rounded-full bg-primary animate-pulse" style="animation-delay: 0.6s"></div>
-            </div>
+        <!-- 手动输入 IP 区域（默认隐藏） -->
+        <div id="manual-ip-section" class="hidden bg-surface rounded-xl shadow-card p-4 mb-6">
+          <div class="flex items-center gap-2 mb-3">
+            <i data-lucide="globe" class="w-4 h-4 text-on-surface-variant"></i>
+            <h3 class="text-base font-semibold text-on-surface">输入服务端地址</h3>
+          </div>
+          <p class="text-xs text-on-surface-variant mb-3">输入服务端的 IP 地址和端口号直接连接</p>
+          <div class="flex gap-3">
+            <input id="input-ip-address" class="flex-1 min-w-0 bg-surface-container border-none rounded-xl px-4 py-3 text-base text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="例如: 192.168.1.100:8080" />
+            <button id="btn-connect" class="bg-primary text-on-primary px-5 py-3 rounded-xl text-base font-semibold hover:opacity-90 active:scale-[0.98] transition-all whitespace-nowrap">连接</button>
           </div>
         </div>
 
-        <button id="btn-cancel-apply"
-                class="w-full bg-surface-container text-on-surface-variant border-none py-3 rounded-xl text-sm font-medium
-                       hover:bg-surface-container-high active:scale-[0.98] transition-all mt-4">
-          取消
-        </button>
       </div>
     </div>
+
+    <!-- @main-content:end -->
 
   </main>
 
@@ -476,171 +336,66 @@
     }
 
     $(function() {
-      // ========== 昵称设置 ==========
-      var $nicknameSection = $('#section-nickname');
-      var $discoverySection = $('#section-discovery');
-      var $inputNickname = $('#input-nickname');
-      var $btnConfirmNickname = $('#btn-confirm-nickname');
-      var $nicknameHint = $('#nickname-hint');
-
-      // 昵称输入实时校验
-      $inputNickname.on('input', function() {
-        var val = $(this).val();
-        var len = val.length;
-        var remaining = 12 - len;
-
-        if (len >= 2) {
-          $btnConfirmNickname.prop('disabled', false)
-            .removeClass('opacity-40 cursor-not-allowed');
-          $nicknameHint.text('还可以输入 ' + remaining + ' 个字符').removeClass('text-error').addClass('text-on-surface-variant');
-        } else {
-          $btnConfirmNickname.prop('disabled', true)
-            .addClass('opacity-40 cursor-not-allowed');
-          if (len > 0) {
-            $nicknameHint.text('至少需要 2 个字符，还可以输入 ' + remaining + ' 个').removeClass('text-on-surface-variant').addClass('text-error');
-          } else {
-            $nicknameHint.text('还可以输入 12 个字符').removeClass('text-error').addClass('text-on-surface-variant');
-          }
-        }
+      // 语言切换按钮 → 跳转语言设置页
+      $('#btn-language').on('click', function() {
+        navPush('language.html');
       });
 
-      // 确认昵称 → 切换到服务端发现区域
-      $btnConfirmNickname.on('click', function() {
-        if ($(this).prop('disabled')) return;
-        var nickname = $inputNickname.val().trim();
-        if (nickname.length < 2) return;
-
-        console.log('[原型演示] 昵称已设置: ' + nickname);
-        $nicknameSection.addClass('hidden');
-        $discoverySection.removeClass('hidden');
-      });
-
-      // ========== 服务端选择 ==========
-      var $modalPassword = $('#modal-password');
-      var $modalApply = $('#modal-apply');
-      var $passwordServerName = $('#password-server-name');
-      var $applyServerName = $('#apply-server-name');
-      var selectedServer = {};
-
-      $('.server-item').on('click', function() {
-        var serverId = $(this).data('server-id');
-        var serverName = $(this).data('server-name');
-        var needsPassword = $(this).data('needs-password') === true || $(this).data('needs-password') === 'true';
-        var needsApproval = $(this).data('needs-approval') === true || $(this).data('needs-approval') === 'true';
-
-        selectedServer = {
-          id: serverId,
-          name: serverName,
-          needsPassword: needsPassword,
-          needsApproval: needsApproval
-        };
-
-        console.log('[原型演示] 选择服务端:', selectedServer);
-
-        // 根据服务端配置决定显示哪个弹窗
-        if (needsPassword) {
-          $passwordServerName.text(serverName);
-          $('#input-password').val('');
-          $('#password-error').addClass('hidden');
-          $modalPassword.removeClass('hidden');
-        } else if (needsApproval) {
-          $applyServerName.text(serverName);
-          $('#input-reason').val('');
-          $('#apply-form').removeClass('hidden');
-          $('#apply-waiting').addClass('hidden');
-          $modalApply.removeClass('hidden');
-        } else {
-          // 开放服务端，直接连接
-          console.log('[原型演示] 直接连接开放服务端: ' + serverName);
-          navPush('chatRoom.html?server=' + serverId);
-        }
-      });
-
-      // ========== 密码弹窗交互 ==========
-      $('#btn-confirm-password').on('click', function() {
-        var pwd = $('#input-password').val().trim();
-        if (pwd.length !== 8) {
-          $('#password-error').text('密码必须为 8 位').removeClass('hidden');
+      // 昵称确认按钮
+      $('#btn-confirm-nickname').on('click', function() {
+        var nickname = $('#input-nickname').val().trim();
+        if (!nickname) {
+          $('#input-nickname').focus();
           return;
         }
-
-        console.log('[原型演示] 验证密码中...');
-
-        // 模拟密码验证成功
-        if (selectedServer.needsApproval) {
-          // 密码正确且需要申请
-          $modalPassword.addClass('hidden');
-          $applyServerName.text(selectedServer.name);
-          $('#input-reason').val('');
-          $('#apply-form').removeClass('hidden');
-          $('#apply-waiting').addClass('hidden');
-          $modalApply.removeClass('hidden');
-        } else {
-          // 密码正确，直接连接
-          $modalPassword.addClass('hidden');
-          console.log('[原型演示] 密码验证成功，连接服务端');
-          navPush('chatRoom.html?server=' + selectedServer.id);
-        }
+        console.log('[原型演示] 设置昵称:', nickname);
+        // 显示成功提示
+        $('#nickname-success').removeClass('hidden');
+        // 禁用输入和按钮
+        $('#input-nickname').prop('disabled', true).addClass('opacity-50');
+        $('#btn-confirm-nickname').prop('disabled', true).addClass('opacity-50');
       });
 
-      $('#btn-cancel-password').on('click', function() {
-        $modalPassword.addClass('hidden');
+      // 点击服务端卡片 → 加入服务端
+      // 根据服务端类型执行不同操作：
+      // - server-1（需密码）：应弹出密码输入弹窗，验证后加入
+      // - server-2（需申请）：应弹出申请加入弹窗，填写申请信息后等待审批
+      // - server-3（开放）：应直接加入聊天室
+      $('#server-1').on('click', function() {
+        console.log('[原型演示] 点击服务端: 房主的聊天室（需密码）');
+        // 后续应实现：弹出底部弹窗，包含密码输入框和确认按钮
+      });
+      $('#server-2').on('click', function() {
+        console.log('[原型演示] 点击服务端: 旅行搭子群（需申请）');
+        // 后续应实现：弹出底部弹窗，包含申请信息输入框和提交按钮
+      });
+      $('#server-3').on('click', function() {
+        console.log('[原型演示] 点击服务端: 开放聊天（开放）');
+        // 后续应实现：直接跳转到聊天室页面
       });
 
-      // ========== 申请弹窗交互 ==========
-      $('#btn-submit-apply').on('click', function() {
-        var reason = $('#input-reason').val().trim();
-        if (reason.length === 0) {
-          console.log('[原型演示] 请填写申请理由');
-          return;
-        }
-
-        console.log('[原型演示] 提交申请: ' + reason);
-        // 切换到等待审批状态
-        $('#apply-form').addClass('hidden');
-        $('#apply-waiting').removeClass('hidden');
+      // 创建房间按钮 → 跳转创建房间页
+      $('#btn-create-room').on('click', function() {
+        navPush('createRoom.html');
       });
 
-      $('#btn-cancel-apply').on('click', function() {
-        $modalApply.addClass('hidden');
-      });
-
-      // ========== 手动输入 IP ==========
-      var $manualSection = $('#section-manual-ip');
-      var $discoveryArea = $('#section-discovery');
-
+      // 手动输入服务端地址按钮 → 展开/收起输入区域
       $('#btn-manual-ip').on('click', function() {
-        $discoveryArea.addClass('hidden');
-        $manualSection.removeClass('hidden');
+        $('#manual-ip-section').toggleClass('hidden');
+        if (!$('#manual-ip-section').hasClass('hidden')) {
+          $('#input-ip-address').focus();
+        }
       });
 
-      $('#btn-cancel-manual').on('click', function() {
-        $manualSection.addClass('hidden');
-        $discoveryArea.removeClass('hidden');
-      });
-
-      $('#btn-connect-manual').on('click', function() {
-        var ip = $('#input-ip').val().trim();
-        if (ip.length === 0) {
-          console.log('[原型演示] 请输入服务端地址');
+      // 连接按钮 → 连接手动输入的服务端
+      $('#btn-connect').on('click', function() {
+        var ip = $('#input-ip-address').val().trim();
+        if (!ip) {
+          $('#input-ip-address').focus();
           return;
         }
-        console.log('[原型演示] 手动连接: ' + ip);
-        // 模拟连接成功，跳转到聊天室
-        navPush('chatRoom.html?server=manual');
-      });
-
-      // 点击遮罩关闭弹窗
-      $modalPassword.on('click', function(e) {
-        if ($(e.target).is('#modal-password')) {
-          $modalPassword.addClass('hidden');
-        }
-      });
-
-      $modalApply.on('click', function(e) {
-        if ($(e.target).is('#modal-apply')) {
-          $modalApply.addClass('hidden');
-        }
+        console.log('[原型演示] 连接服务端:', ip);
+        // 后续应实现：验证 IP 格式，尝试连接服务端，连接成功后跳转到聊天室
       });
     });
   </script>

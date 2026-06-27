@@ -11,9 +11,17 @@
     {
       "type": "html",
       "options": {
-        "path": ".cozeproj/prototype/mobile/chatRoom.html"
+        "path": ".cozeproj/prototype/mobile/createRoom.html"
       },
-      "title": "聊天室",
+      "title": "创建房间",
+      "size": "mobile"
+    },
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/mobile/language.html"
+      },
+      "title": "语言设置",
       "size": "mobile"
     }
   ]
