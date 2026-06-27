@@ -102,6 +102,8 @@ const fa: TranslationKeys = {
     smallGroups: 'Small Groups',
     selectDisguise: 'Select Disguise',
     reportUser: 'Report User',
+    reportedUser: 'Reported User',
+    reportReasonPlaceholder: 'Enter report reason...',
     reportReason: 'Report Reason',
     submitReport: 'Submit Report',
   },
@@ -159,6 +161,13 @@ const fa: TranslationKeys = {
     pending: 'در انتظار تایید',
     approved: 'تایید شد',
     rejected: 'رد شد',
+  },
+
+  nickname: {
+    title: "نام مستعار خود را تنظیم کنید",
+    subtitle: "نامی که در چت نمایش داده می‌شود",
+    placeholder: "نام مستعار را وارد کنید (۲-۱۲ کاراکتر)",
+    startChat: "شروع چت",
   },
 
   language: {

@@ -102,6 +102,8 @@ const ar: TranslationKeys = {
     smallGroups: 'Small Groups',
     selectDisguise: 'Select Disguise',
     reportUser: 'Report User',
+    reportedUser: 'المستخدم المبلغ عنه',
+    reportReasonPlaceholder: 'أدخل سبب البلاغ...',
     reportReason: 'Report Reason',
     submitReport: 'Submit Report',
   },
@@ -159,6 +161,13 @@ const ar: TranslationKeys = {
     pending: 'بانتظار الموافقة',
     approved: 'تمت الموافقة',
     rejected: 'مرفوض',
+  },
+
+  nickname: {
+    title: "قم بتعيين اسمك المستعار",
+    subtitle: "الاسم المعروض في الدردشة",
+    placeholder: "أدخل الاسم المستعار (2-12 حرفًا)",
+    startChat: "ابدأ الدردشة",
   },
 
   language: {

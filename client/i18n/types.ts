@@ -133,7 +133,9 @@ export interface TranslationKeys {
     smallGroups: string;
     selectDisguise: string;
     reportUser: string;
+    reportedUser: string;
     reportReason: string;
+    reportReasonPlaceholder: string;
     submitReport: string;
   };
 
@@ -195,6 +197,14 @@ export interface TranslationKeys {
     pending: string;
     approved: string;
     rejected: string;
+  };
+
+  // 昵称设置
+  nickname: {
+    title: string;
+    subtitle: string;
+    placeholder: string;
+    startChat: string;
   };
 
   // 语言设置

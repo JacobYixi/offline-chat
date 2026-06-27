@@ -102,6 +102,8 @@ const zhTW: TranslationKeys = {
     smallGroups: 'Small Groups',
     selectDisguise: 'Select Disguise',
     reportUser: 'Report User',
+    reportedUser: '被舉報人',
+    reportReasonPlaceholder: '請輸入舉報原因...',
     reportReason: 'Report Reason',
     submitReport: 'Submit Report',
   },
@@ -159,6 +161,13 @@ const zhTW: TranslationKeys = {
     pending: '等待審批',
     approved: '已通過',
     rejected: '已拒絕',
+  },
+
+  nickname: {
+    title: "設定你的暱稱",
+    subtitle: "在聊天中顯示的名字",
+    placeholder: "輸入暱稱（2-12個字元）",
+    startChat: "開始聊天",
   },
 
   language: {

@@ -99,6 +99,8 @@ const zhCN: TranslationKeys = {
     smallGroups: '小群组',
     selectDisguise: '选择伪装类型',
     reportUser: '举报用户',
+    reportedUser: '被举报人',
+    reportReasonPlaceholder: '请输入举报原因...',
     reportReason: '举报原因',
     submitReport: '提交举报',
   },
@@ -152,6 +154,13 @@ const zhCN: TranslationKeys = {
     approved: '申请已通过',
     rejected: '申请被拒绝',
   },
+  nickname: {
+    title: "设置你的昵称",
+    subtitle: "在聊天中显示的名字",
+    placeholder: "输入昵称（2-12个字符）",
+    startChat: "开始聊天",
+  },
+
   language: {
     title: '语言设置',
     followSystem: '跟随系统',

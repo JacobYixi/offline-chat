@@ -102,6 +102,8 @@ const en: TranslationKeys = {
     smallGroups: 'Small Groups',
     selectDisguise: 'Select Disguise',
     reportUser: 'Report User',
+    reportedUser: 'Reported User',
+    reportReasonPlaceholder: 'Enter report reason...',
     reportReason: 'Report Reason',
     submitReport: 'Submit Report',
   },
@@ -159,6 +161,13 @@ const en: TranslationKeys = {
     pending: 'Pending approval',
     approved: 'Approved',
     rejected: 'Rejected',
+  },
+
+  nickname: {
+    title: "Set your nickname",
+    subtitle: "Name displayed in chat",
+    placeholder: "Enter nickname (2-12 characters)",
+    startChat: "Start Chat",
   },
 
   language: {

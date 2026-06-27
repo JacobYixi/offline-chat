@@ -102,6 +102,8 @@ const es: TranslationKeys = {
     smallGroups: 'Small Groups',
     selectDisguise: 'Select Disguise',
     reportUser: 'Report User',
+    reportedUser: 'Usuario reportado',
+    reportReasonPlaceholder: 'Ingrese el motivo del reporte...',
     reportReason: 'Report Reason',
     submitReport: 'Submit Report',
   },
@@ -159,6 +161,13 @@ const es: TranslationKeys = {
     pending: 'Aprobación pendiente',
     approved: 'Aprobado',
     rejected: 'Rechazado',
+  },
+
+  nickname: {
+    title: "Establece tu apodo",
+    subtitle: "Nombre que se muestra en el chat",
+    placeholder: "Ingresa apodo (2-12 caracteres)",
+    startChat: "Iniciar chat",
   },
 
   language: {
