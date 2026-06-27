@@ -18,6 +18,7 @@ const es: TranslationKeys = {
     no: 'No',
     ok: 'OK',
     retry: 'Reintentar',
+    connect: 'Conectar',
   },
 
   home: {

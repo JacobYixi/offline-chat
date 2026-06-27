@@ -13,11 +13,12 @@ const ko: TranslationKeys = {
     error: '오류',
     success: '성공',
     warning: '경고',
-    notice: 'Notice',
+    notice: '알림',
     yes: '예',
     no: '아니오',
     ok: '확인',
     retry: '재시도',
+    connect: '연결',
   },
 
   home: {

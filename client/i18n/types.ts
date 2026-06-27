@@ -46,6 +46,7 @@ export interface TranslationKeys {
     no: string;
     ok: string;
     retry: string;
+    connect: string;
   };
 
   // 首页

@@ -18,6 +18,7 @@ const zhTW: TranslationKeys = {
     no: '否',
     ok: '好的',
     retry: '重試',
+    connect: '連線',
   },
 
   home: {
