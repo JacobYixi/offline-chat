@@ -207,3 +207,4 @@ pnpm -w lint:all
 
 [Hippocratic License 3.0](./LICENSE) — Based on MIT with a human rights clause.
 References the Universal Declaration of Human Rights. Prohibits use of the software for activities that violate human rights.
+
