@@ -1,261 +1,209 @@
-# Expo App + Express.js
+# OfflineChat
 
-## 目录结构规范（严格遵循）
+**离线加密局域网通讯工具 / Offline Encrypted LAN Chat**
 
-当前仓库是一个 monorepo（基于 pnpm 的 workspace）
+[中文](#中文) | [English](#english)
 
-- Expo 代码在 client 目录，Express.js 代码在 server 目录
-- 本模板默认无 Tab Bar，可按需改造
+---
 
-├── client/                     # React Native 前端代码
-│   ├── app/                    # Expo Router 路由目录（仅路由配置）
-│   │   ├── _layout.tsx         # 根布局文件（必需，务必阅读）
-│   │   └── index.tsx           # 首页
-│   ├── screens/                # 页面实现目录（与 app/ 路由对应）
-│   │   └── demo/               # 示例页面
-│   │       └── index.tsx
-│   ├── components/             # 可复用组件
-│   │   └── Screen.tsx          # 页面容器组件（必用）
-│   ├── hooks/                  # 自定义 Hooks
-│   ├── contexts/               # React Context 代码
+## 中文
+
+### 简介
+
+OfflineChat 是一款无需互联网连接的局域网加密通讯应用。在同一局域网（WiFi、热点、有线网络）内，设备之间可以直接进行加密聊天，无需任何中心化服务器。
+
+任何一台设备都可以成为"房主"，启动聊天室服务；其他设备通过 UDP 广播自动发现房间，或手动输入 IP 地址加入。
+
+### 核心特性
+
+- **完全离线** — 无需互联网，局域网内即可通讯
+- **端到端加密** — AES-256-CBC + PBKDF2 密钥派生，消息内容全程加密
+- **私聊加密** — 基于 ECDH 密钥交换，每对用户拥有独立密钥
+- **群组加密** — 小群组消息使用群组共享密钥
+- **消息伪装** — 将加密消息伪装成天气预报、代码日志、购物清单等无害内容
+- **UDP 广播发现** — 自动发现同一网络内的聊天室
+- **房间管理** — 支持密码保护、审批加入机制
+- **多语言** — 支持 10 种语言，包括 RTL 布局（阿拉伯语、波斯语）
+- **举报系统** — 支持举报不当消息
+- **跨平台** — 基于 Expo/React Native，支持 Android、iOS、Web
+
+### 支持语言
+
+| 语言 | 代码 | RTL |
+|------|------|-----|
+| 简体中文 | zh-CN | |
+| 繁体中文 | zh-TW | |
+| English | en | |
+| Français | fr | |
+| Русский | ru | |
+| Español | es | |
+| العربية | ar | ✓ |
+| فارسی | fa | ✓ |
+| 日本語 | ja | |
+| 한국어 | ko | |
+
+### 技术栈
+
+| 层级 | 技术 |
+|------|------|
+| 前端 | Expo 54 + React Native + TypeScript |
+| 后端 | Express.js + WebSocket |
+| 加密 | CryptoJS (AES-256-CBC, PBKDF2, ECDH) |
+| 网络 | TCP/UDP (react-native-tcp-socket) |
+| 样式 | Tailwind CSS (Uniwind) |
+| 路由 | Expo Router |
+
+### 项目结构
+
+```
+├── client/                     # React Native 前端
+│   ├── app/                    # Expo Router 路由目录
+│   ├── screens/                # 页面实现
+│   │   ├── home/               # 首页（昵称设置 + 服务器发现）
+│   │   ├── chatRoom/           # 聊天室
+│   │   ├── createRoom/         # 创建房间
+│   │   ├── nickname/           # 昵称设置
+│   │   └── language/           # 语言切换
+│   ├── i18n/                   # 国际化模块
+│   │   └── translations/       # 10 种语言翻译文件
 │   ├── utils/                  # 工具函数
-│   ├── assets/                 # 静态资源
-|   └── package.json            # Expo 应用 package.json
-├── server/                     # 服务端代码根目录 (Express.js)
-|   ├── src/
-│   │   └── index.ts            # 服务端入口文件
-|   └── package.json            # 服务端 package.json
-├── package.json
-├── .cozeproj                   # 预置脚手架脚本（禁止修改）
-└── .coze                       # 配置文件（禁止修改）
-
-## 样式方案
-
-基于 tailwindcss 进行样式开发（底层基于 Uniwind）
-
-写法示例：
-
-```tsx
-<View className="flex-1 bg-white dark:bg-gray-900 p-4"></View>
+│   │   ├── crypto.ts           # 加密模块
+│   │   ├── disguise.ts         # 消息伪装
+│   │   ├── mobileServer.ts     # 移动端 TCP 服务
+│   │   ├── deviceIdentity.ts   # 设备身份
+│   │   └── storage.ts          # 本地存储
+│   └── hooks/                  # 自定义 Hooks
+├── server/                     # Express.js 后端
+│   └── src/
+│       ├── index.ts            # 服务入口
+│       ├── chatManager.ts      # 聊天管理
+│       └── broadcast.ts        # UDP 广播
+└── package.json
 ```
 
-```tsx
-<Text
-  className="text-lg font-bold text-gray-900 dark:text-white"
-  selectionColorClassName="accent-blue-500"
->
-  Hello World
-</Text>
-```
-
-Uniwind 官方文档：https://docs.uniwind.dev/llms.txt
-
-## 如何进行静态校验（TSC + ESLint）
+### 快速开始
 
 ```bash
-# 对 client 和 server 目录同时进行校验
+# 安装依赖
+pnpm install
+
+# 启动开发环境
+coze dev
+
+# 静态检查
 pnpm -w lint:all
-
-# 对 client 目录进行校验
-pnpm -w lint:client
-
-# 对 server 目录进行校验
-pnpm -w lint:server
 ```
 
-## 如何修改主题模式（跟随系统、固定暗色、固定亮色）
+### 安全说明
 
-默认为跟随系统，如果用户明确指定为“暗色”或“亮色”，需要修改 `client/components/ColorSchemeUpdater.tsx` 的 `DEFAULT_THEME` 变量为合适的值
+- 所有消息在发送前使用 AES-256-CBC 加密，密钥通过 PBKDF2 从共享密钥派生
+- 私聊消息使用 ECDH 密钥交换，确保只有对话双方可以解密
+- 消息伪装功能可将加密内容伪装成无害文本，防止被识别为加密通讯
+- 本工具仅用于合法的局域网通讯场景，请遵守当地法律法规
 
-## 如何定制主题 design tokens
+### 许可证
 
-当前项目的**设计系统**基于 tailwindcss 实现，核心入口文件为 `client/global.css`，如果需要定制主题，应该**阅读并修改 `client/global.css` 文件**
+[Hippocratic License 3.0](./LICENSE) — 基于 MIT，附加人权条款。
+引用《世界人权宣言》，禁止将本软件用于侵犯人权的活动。
 
-## 路由及 Tab Bar 实现规范
+---
 
-### 方案一：无 Tab Bar（Stack 导航）
+## English
 
-适用于线性流程应用，采用简化的目录结构：
+### Introduction
+
+OfflineChat is an encrypted LAN communication app that works without internet access. Devices on the same local network (WiFi, hotspot, wired network) can chat securely with each other — no centralized server required.
+
+Any device can become a "room owner" and start a chat room service. Other devices automatically discover rooms via UDP broadcast, or join manually by entering an IP address.
+
+### Key Features
+
+- **Fully Offline** — No internet needed, works on any local network
+- **End-to-End Encryption** — AES-256-CBC + PBKDF2 key derivation, all messages encrypted in transit
+- **Private Chat Encryption** — ECDH key exchange, each pair of users has a unique shared secret
+- **Group Encryption** — Small group messages use a shared group key
+- **Message Disguise** — Disguise encrypted messages as weather reports, code logs, shopping lists, or system logs
+- **UDP Broadcast Discovery** — Automatically discover chat rooms on the same network
+- **Room Management** — Password protection and approval-based joining
+- **Multi-Language** — 10 languages supported, including RTL layouts (Arabic, Persian)
+- **Report System** — Report inappropriate messages
+- **Cross-Platform** — Built with Expo/React Native for Android, iOS, and Web
+
+### Supported Languages
+
+| Language | Code | RTL |
+|----------|------|-----|
+| Simplified Chinese | zh-CN | |
+| Traditional Chinese | zh-TW | |
+| English | en | |
+| Français | fr | |
+| Русский | ru | |
+| Español | es | |
+| العربية | ar | ✓ |
+| فارسی | fa | ✓ |
+| 日本語 | ja | |
+| 한국어 | ko | |
+
+### Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Expo 54 + React Native + TypeScript |
+| Backend | Express.js + WebSocket |
+| Encryption | CryptoJS (AES-256-CBC, PBKDF2, ECDH) |
+| Network | TCP/UDP (react-native-tcp-socket) |
+| Styling | Tailwind CSS (Uniwind) |
+| Routing | Expo Router |
+
+### Project Structure
 
 ```
-client/app/
-├── _layout.tsx         # 根布局（Stack 导航配置）
-├── index.tsx           # 应用入口
-├── detail.tsx          # 详情页（通过 params 传递数据）
-└── +not-found.tsx      # 404 页面
+├── client/                     # React Native Frontend
+│   ├── app/                    # Expo Router routes
+│   ├── screens/                # Screen implementations
+│   │   ├── home/               # Home (nickname + server discovery)
+│   │   ├── chatRoom/           # Chat room
+│   │   ├── createRoom/         # Create room
+│   │   ├── nickname/           # Nickname setup
+│   │   └── language/           # Language switch
+│   ├── i18n/                   # Internationalization
+│   │   └── translations/       # 10 language files
+│   ├── utils/                  # Utilities
+│   │   ├── crypto.ts           # Encryption module
+│   │   ├── disguise.ts         # Message disguise
+│   │   ├── mobileServer.ts     # Mobile TCP server
+│   │   ├── deviceIdentity.ts   # Device identity
+│   │   └── storage.ts          # Local storage
+│   └── hooks/                  # Custom Hooks
+├── server/                     # Express.js Backend
+│   └── src/
+│       ├── index.ts            # Server entry
+│       ├── chatManager.ts      # Chat management
+│       └── broadcast.ts        # UDP broadcast
+└── package.json
 ```
 
-**根布局配置** `client/app/_layout.tsx`：
-
-以下仅为代码片段供写法参考
-
-```tsx
-<Stack screenOptions={{ headerShown: false }}>
-  <Stack.Screen name="index" />
-  <Stack.Screen name="detail" />
-</Stack>
-```
-
-**应用入口** `client/app/index.tsx`：
-```tsx
-export { default } from "@/screens/home";
-```
-> **禁止事项**：无 Tab Bar 场景下，不得创建 `(tabs)` 目录。
-
-### 方案二：有 Tab Bar（Tabs 导航）
-
-采用路由分组实现底部导航栏：
-```
-client/app/
-├── _layout.tsx              # 根布局
-├── (tabs)/
-│   ├── _layout.tsx          # Tab 导航配置
-│   ├── index.tsx            # 默认 Tab（必须存在）
-│   ├── discover.tsx         # 发现页
-│   └── profile.tsx          # 个人中心
-├── detail.tsx               # Tab 外的独立页面（通过 params 传递数据）
-└── +not-found.tsx
-```
-> **⚠️ [CRITICAL]**： `app/index.tsx` 优先级高于 `(tabs)/index.tsx`，会导致首页无 Tab Bar。**当有(tabs)/index.tsx时必须删除 `app/index.tsx`**。
-
-**根布局配置** `client/app/_layout.tsx`：
-
-以下仅为代码片段供写法参考
-
-```tsx
-<Stack screenOptions={{ headerShown: false }}>
-  <Stack.Screen name="(tabs)" />
-  <Stack.Screen name="detail" />
-</Stack>
-```
-
-**应用入口** `client/app/(tabs)/index.tsx`：
-```tsx
-export { default } from "@/screens/home";
-```
-
-**Tab 布局配置** `client/app/(tabs)/_layout.tsx`：
-
-```tsx
-import { Tabs } from 'expo-router';
-import { Platform } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontAwesome6 } from '@expo/vector-icons';
-import { useCSSVariable } from 'uniwind';
-
-export default function TabLayout() {
-  const insets = useSafeAreaInsets();
-  const [background, muted, accent, border] = useCSSVariable([
-    '--color-background',
-    '--color-muted',
-    '--color-accent',
-    '--color-border',
-  ]) as string[];
-
-  let tabBarStyle = {
-    backgroundColor: background,
-    borderTopWidth: 1,
-    borderTopColor: border,
-  };
-
-  // 用于修复 Web 上高度异常的问题（这个 if 逻辑必须添加）
-  if (Platform.OS === 'web') {
-    tabBarStyle = {
-      ...tabBarStyle,
-      height: 'auto',
-    }
-  }
-
-  return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle,
-        tabBarActiveTintColor: accent,
-        tabBarInactiveTintColor: muted,
-      }}
-    >
-      {/* name 必须与文件名完全一致 */}
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: '首页',
-          tabBarIcon: ({ color }) => (
-            <FontAwesome6 name="house" size={20} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="discover"
-        options={{
-          title: '发现',
-          tabBarIcon: ({ color }) => (
-            <FontAwesome6 name="compass" size={20} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: '我的',
-          tabBarIcon: ({ color }) => (
-            <FontAwesome6 name="user" size={20} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
-  );
-}
-```
-
-**Tab 页面文件** `client/app/(tabs)/index.tsx`：
-```tsx
-export { default } from "@/screens/home";
-```
-
-### 注意事项
-
-在改动 `client/app/_layout.tsx` 前，必须先阅读该文件，再进行修改操作
-
-以下是需要保留的重要逻辑
-
-- 保留 global.css 引入（tailwindcss 生效的关键）
-- 保留 Provider 的使用
-
-## 依赖管理与模块导入规范
-
-### 依赖安装
-**禁止**使用 `npm` 或 `yarn`，按目录区分安装命令：
-
-| 目录 | 安装命令 | 说明 |
-|------|----------|------|
-| `client/` | `npx expo install <package>` | Expo 会自动选择与 SDK 兼容的版本 |
-| `server/` | `pnpm add <package>` | 使用 pnpm 管理后端依赖 |
+### Quick Start
 
 ```bash
-# client 目录（Expo 项目）
-cd client && npx expo install expo-camera expo-image-picker
+# Install dependencies
+pnpm install
 
-# server 目录（Express 项目）
-cd server && pnpm add axios cors
+# Start development environment
+coze dev
+
+# Run static checks
+pnpm -w lint:all
 ```
 
-**网络问题处理**：`npx expo install` 可能因网络原因失败，失败时重试 2 次，仍失败则改用 `pnpm add` 安装
+### Security Notes
 
-## Expo 开发规范
+- All messages are encrypted with AES-256-CBC before sending, keys derived via PBKDF2 from a shared secret
+- Private chat messages use ECDH key exchange, ensuring only the two participants can decrypt
+- Message disguise feature can camouflage encrypted content as innocuous text to avoid detection as encrypted communication
+- This tool is intended for legitimate LAN communication scenarios only. Please comply with local laws and regulations
 
-### 路径别名
+### License
 
-Expo 配置了 `@/` 路径别名指向 `client/` 目录：
-
-```tsx
-// 正确
-import { Screen } from '@/components/Screen';
-
-// 避免相对路径
-import { Screen } from '../../../components/Screen';
-```
-
-## 本地开发
-
-`coze dev`：用来首次启动前后端服务，也可以用来重启前后端服务（该命令会先尝试杀掉占用端口的进程，再启动服务）
+[Hippocratic License 3.0](./LICENSE) — Based on MIT with a human rights clause.
+References the Universal Declaration of Human Rights. Prohibits use of the software for activities that violate human rights.
