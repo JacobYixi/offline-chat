@@ -199,11 +199,12 @@ function handleAuth(clientId: string, payload: any) {
   let finalNickname: string = state.deviceNicknames.get(deviceId) || '';
   
   if (!finalNickname) {
-    // 新设备，检查重名
+    // 新设备，检查重名（包括在线用户和已保留的昵称）
     finalNickname = nickname;
     let suffix = 1;
     const existingUsers = Array.from(state.users.values());
-    while (existingUsers.some(u => u.nickname === finalNickname)) {
+    const reservedNicknames = new Set(state.deviceNicknames.values());
+    while (existingUsers.some(u => u.nickname === finalNickname) || reservedNicknames.has(finalNickname)) {
       suffix++;
       finalNickname = `${nickname}#${suffix}`;
     }
@@ -468,7 +469,7 @@ function handleKick(clientId: string, payload: any) {
       client.socket.destroy();
       state.clients.delete(id);
       state.users.delete(deviceId);
-      state.deviceNicknames.delete(deviceId); // 释放昵称，允许新用户使用
+      // 不删除 deviceNicknames，保留昵称给断线用户重连时使用
       broadcast({ type: 'user:left', payload: { deviceId } });
     }
   });
@@ -579,7 +580,7 @@ export async function startServer(config: Partial<ServerConfig>): Promise<{ succ
         const client = state.clients.get(clientId);
         if (client && client.isApproved) {
           state.users.delete(client.deviceId);
-          state.deviceNicknames.delete(client.deviceId); // 释放昵称，允许新用户使用
+          // 不删除 deviceNicknames，保留昵称给断线用户重连时使用
           broadcast({ type: 'user:left', payload: { deviceId: client.deviceId } });
           emit('user:left', { deviceId: client.deviceId });
         }
