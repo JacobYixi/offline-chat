@@ -1,3 +1,7 @@
+/**
+ * 首页 - 昵称设置 + 服务端发现
+ */
+
 import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
@@ -11,6 +15,7 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  I18nManager,
 } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { useSafeRouter } from '@/hooks/useSafeRouter';
@@ -18,10 +23,12 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { useServerDiscovery, connectToServer } from '@/hooks/useServerDiscovery';
 import { initializeDeviceIdentity } from '@/utils/deviceIdentity';
 import { getSettings, saveSettings, addToServerHistory } from '@/utils/storage';
+import { useTranslation } from '@/i18n';
 import type { DiscoveredServer } from '@/utils/types';
 
 export default function HomeScreen() {
   const router = useSafeRouter();
+  const { t } = useTranslation();
   const [nickname, setNickname] = useState('');
   const [isNicknameSet, setIsNicknameSet] = useState(false);
   const [showManualInput, setShowManualInput] = useState(false);
@@ -53,7 +60,7 @@ export default function HomeScreen() {
 
   const handleSetNickname = async () => {
     if (nickname.length < 2 || nickname.length > 12) {
-      Alert.alert('提示', '昵称需要2-12个字符');
+      Alert.alert(t('common.tip'), t('home.nicknameLengthError'));
       return;
     }
     await saveSettings({ nickname });
@@ -64,14 +71,12 @@ export default function HomeScreen() {
     setSelectedServer(server);
 
     if (server.hasPassword && server.requireApproval) {
-      // Need both password and approval
       setShowPasswordModal(true);
     } else if (server.hasPassword) {
       setShowPasswordModal(true);
     } else if (server.requireApproval) {
       setShowApprovalModal(true);
     } else {
-      // Direct connection
       await connectDirectly(server);
     }
   };
@@ -79,10 +84,7 @@ export default function HomeScreen() {
   const connectDirectly = async (server: DiscoveredServer) => {
     setIsConnecting(true);
     try {
-      // Save to history
       await addToServerHistory(server);
-
-      // Navigate to chat room
       router.push('/chatRoom', {
         serverId: server.serverId,
         serverName: server.serverName,
@@ -91,7 +93,7 @@ export default function HomeScreen() {
         nickname,
       });
     } catch {
-      Alert.alert('错误', '连接失败，请重试');
+      Alert.alert(t('common.error'), t('home.connectFailed'));
     } finally {
       setIsConnecting(false);
     }
@@ -99,7 +101,7 @@ export default function HomeScreen() {
 
   const handleManualConnect = async () => {
     if (!manualIP.trim()) {
-      Alert.alert('提示', '请输入服务器IP地址');
+      Alert.alert(t('common.tip'), t('home.enterIP'));
       return;
     }
 
@@ -109,10 +111,10 @@ export default function HomeScreen() {
       if (server) {
         await handleConnectToServer(server);
       } else {
-        Alert.alert('错误', '无法连接到服务器，请检查IP地址');
+        Alert.alert(t('common.error'), t('home.connectFailed'));
       }
     } catch {
-      Alert.alert('错误', '连接失败，请重试');
+      Alert.alert(t('common.error'), t('home.connectFailed'));
     } finally {
       setIsConnecting(false);
     }
@@ -120,7 +122,7 @@ export default function HomeScreen() {
 
   const handlePasswordSubmit = async () => {
     if (password.length !== 8) {
-      Alert.alert('提示', '请输入8位密码');
+      Alert.alert(t('common.tip'), t('home.enter8DigitPassword'));
       return;
     }
 
@@ -128,7 +130,6 @@ export default function HomeScreen() {
 
     setIsConnecting(true);
     try {
-      // Verify password with server
       const response = await fetch(
         `http://${selectedServer.ip}:${selectedServer.port}/api/v1/verify-password`,
         {
@@ -139,7 +140,7 @@ export default function HomeScreen() {
       );
 
       if (!response.ok) {
-        Alert.alert('错误', '密码错误');
+        Alert.alert(t('common.error'), t('home.wrongPassword'));
         return;
       }
 
@@ -152,7 +153,7 @@ export default function HomeScreen() {
         await connectDirectly(selectedServer);
       }
     } catch {
-      Alert.alert('错误', '验证失败，请重试');
+      Alert.alert(t('common.error'), t('home.verifyFailed'));
     } finally {
       setIsConnecting(false);
     }
@@ -160,16 +161,13 @@ export default function HomeScreen() {
 
   const handleApprovalSubmit = async () => {
     if (!approvalReason.trim()) {
-      Alert.alert('提示', '请输入申请理由');
+      Alert.alert(t('common.tip'), t('home.enterReason'));
       return;
     }
 
     if (!selectedServer) return;
 
     setApprovalStatus('waiting');
-    // In real implementation, this would use WebSocket to submit approval
-    // and wait for server response
-    // For now, simulate the flow
     setTimeout(() => {
       setApprovalStatus('granted');
       setTimeout(() => {
@@ -189,13 +187,13 @@ export default function HomeScreen() {
         </View>
       </View>
       <Text style={styles.appTitle}>OfflineChat</Text>
-      <Text style={styles.appSubtitle}>安全私密的离线聊天</Text>
+      <Text style={styles.appSubtitle}>{t('home.subtitle')}</Text>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>设置昵称</Text>
+        <Text style={styles.label}>{t('home.setNickname')}</Text>
         <TextInput
           style={styles.input}
-          placeholder="输入昵称（2-12字符）"
+          placeholder={t('home.nicknamePlaceholder')}
           placeholderTextColor="#64748B"
           value={nickname}
           onChangeText={setNickname}
@@ -212,7 +210,7 @@ export default function HomeScreen() {
         onPress={handleSetNickname}
         disabled={nickname.length < 2 || nickname.length > 12}
       >
-        <Text style={styles.primaryButtonText}>确认</Text>
+        <Text style={styles.primaryButtonText}>{t('common.confirm')}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -223,7 +221,7 @@ export default function HomeScreen() {
         <View style={styles.scanIndicator}>
           {scanning && <ActivityIndicator size="small" color="#6366F1" />}
           <Text style={styles.scanText}>
-            {scanning ? '正在搜索附近的服务端...' : '搜索完成'}
+            {scanning ? t('home.scanning') : t('home.scanComplete')}
           </Text>
         </View>
         <TouchableOpacity onPress={refresh} style={styles.refreshButton}>
@@ -236,8 +234,9 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      {servers.length > 0 ? (
-        <ScrollView style={styles.serverList}>
+      <View style={styles.serverListContainer}>
+        {servers.length > 0 ? (
+          <ScrollView style={styles.serverList}>
           {servers.map((server) => (
             <TouchableOpacity
               key={server.serverId}
@@ -269,18 +268,18 @@ export default function HomeScreen() {
                       ))}
                     </View>
                     <Text style={styles.userCount}>
-                      {server.userCount}人在线
+                      {t('home.usersOnline', { count: server.userCount })}
                     </Text>
                     {server.hasPassword && (
                       <View style={styles.badge}>
                         <FontAwesome6 name="lock" size={10} color="#F59E0B" />
-                        <Text style={styles.badgeText}>需密码</Text>
+                        <Text style={styles.badgeText}>{t('home.needPassword')}</Text>
                       </View>
                     )}
                     {server.requireApproval && (
                       <View style={[styles.badge, styles.badgeApproval]}>
                         <FontAwesome6 name="user-check" size={10} color="#10B981" />
-                        <Text style={styles.badgeText}>需申请</Text>
+                        <Text style={styles.badgeText}>{t('home.needApproval')}</Text>
                       </View>
                     )}
                   </View>
@@ -289,28 +288,38 @@ export default function HomeScreen() {
               <FontAwesome6 name="chevron-right" size={16} color="#64748B" />
             </TouchableOpacity>
           ))}
-        </ScrollView>
-      ) : (
-        <View style={styles.emptyState}>
-          <FontAwesome6 name="wifi" size={48} color="#334155" />
-          <Text style={styles.emptyText}>未发现服务端</Text>
-          <Text style={styles.emptySubtext}>请确保已连接到服务端的热点</Text>
-        </View>
-      )}
+          </ScrollView>
+        ) : (
+          <View style={styles.emptyState}>
+            <FontAwesome6 name="wifi" size={48} color="#334155" />
+            <Text style={styles.emptyText}>{t('home.noServerFound')}</Text>
+            <Text style={styles.emptySubtext}>{t('home.noServerHint')}</Text>
+          </View>
+        )}
+      </View>
+
+      {/* 创建房间按钮 */}
+      <TouchableOpacity
+        style={styles.createRoomButton}
+        onPress={() => router.push('/createRoom')}
+      >
+        <FontAwesome6 name="circle-plus" size={20} color="#fff" />
+        <Text style={styles.createRoomButtonText}>{t('home.createRoom')}</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.manualButton}
         onPress={() => setShowManualInput(!showManualInput)}
       >
         <FontAwesome6 name="keyboard" size={16} color="#6366F1" />
-        <Text style={styles.manualButtonText}>手动输入IP地址</Text>
+        <Text style={styles.manualButtonText}>{t('home.manualIP')}</Text>
       </TouchableOpacity>
 
       {showManualInput && (
         <View style={styles.manualInputContainer}>
           <TextInput
             style={styles.manualInput}
-            placeholder="输入服务器IP地址（如 192.168.1.100）"
+            placeholder={t('home.ipPlaceholder')}
             placeholderTextColor="#64748B"
             value={manualIP}
             onChangeText={setManualIP}
@@ -328,7 +337,7 @@ export default function HomeScreen() {
             {isConnecting ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <Text style={styles.connectButtonText}>连接</Text>
+              <Text style={styles.connectButtonText}>{t('common.connect')}</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -342,6 +351,20 @@ export default function HomeScreen() {
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
+        {/* 顶部栏 - 语言切换按钮 */}
+        <View style={styles.header}>
+          <View style={styles.headerLeft} />
+          <View style={styles.headerCenter}>
+            <Text style={styles.headerTitle}>OfflineChat</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.headerRight}
+            onPress={() => router.push('/language')}
+          >
+            <FontAwesome6 name="globe" size={20} color="#E2E8F0" />
+          </TouchableOpacity>
+        </View>
+
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -364,17 +387,17 @@ export default function HomeScreen() {
           >
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>输入密码</Text>
+                <Text style={styles.modalTitle}>{t('home.enterPassword')}</Text>
                 <TouchableOpacity onPress={() => setShowPasswordModal(false)}>
                   <FontAwesome6 name="xmark" size={20} color="#94A3B8" />
                 </TouchableOpacity>
               </View>
               <Text style={styles.modalDescription}>
-                该服务端需要密码才能加入
+                {t('home.passwordRequired')}
               </Text>
               <TextInput
                 style={styles.passwordInput}
-                placeholder="输入8位密码"
+                placeholder={t('home.enter8DigitPassword')}
                 placeholderTextColor="#64748B"
                 value={password}
                 onChangeText={setPassword}
@@ -392,7 +415,7 @@ export default function HomeScreen() {
                 {isConnecting ? (
                   <ActivityIndicator size="small" color="#fff" />
                 ) : (
-                  <Text style={styles.primaryButtonText}>确认</Text>
+                  <Text style={styles.primaryButtonText}>{t('common.confirm')}</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -418,7 +441,7 @@ export default function HomeScreen() {
           >
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>申请加入</Text>
+                <Text style={styles.modalTitle}>{t('home.applyToJoin')}</Text>
                 {approvalStatus === 'idle' && (
                   <TouchableOpacity onPress={() => setShowApprovalModal(false)}>
                     <FontAwesome6 name="xmark" size={20} color="#94A3B8" />
@@ -429,11 +452,11 @@ export default function HomeScreen() {
               {approvalStatus === 'idle' && (
                 <>
                   <Text style={styles.modalDescription}>
-                    该服务端需要申请才能加入，请填写申请理由
+                    {t('home.approvalRequired')}
                   </Text>
                   <TextInput
                     style={styles.reasonInput}
-                    placeholder="输入申请理由"
+                    placeholder={t('home.enterReason')}
                     placeholderTextColor="#64748B"
                     value={approvalReason}
                     onChangeText={setApprovalReason}
@@ -448,7 +471,7 @@ export default function HomeScreen() {
                     onPress={handleApprovalSubmit}
                     disabled={!approvalReason.trim()}
                   >
-                    <Text style={styles.primaryButtonText}>提交申请</Text>
+                    <Text style={styles.primaryButtonText}>{t('home.submitApply')}</Text>
                   </TouchableOpacity>
                 </>
               )}
@@ -456,14 +479,31 @@ export default function HomeScreen() {
               {approvalStatus === 'waiting' && (
                 <View style={styles.waitingContainer}>
                   <ActivityIndicator size="large" color="#6366F1" />
-                  <Text style={styles.waitingText}>等待房主审批...</Text>
+                  <Text style={styles.waitingText}>{t('home.waitingForApproval')}</Text>
                 </View>
               )}
 
               {approvalStatus === 'granted' && (
                 <View style={styles.grantedContainer}>
                   <FontAwesome6 name="circle-check" size={48} color="#10B981" />
-                  <Text style={styles.grantedText}>申请已通过</Text>
+                  <Text style={styles.grantedText}>{t('home.approved')}</Text>
+                </View>
+              )}
+
+              {approvalStatus === 'rejected' && (
+                <View style={styles.rejectedContainer}>
+                  <FontAwesome6 name="circle-xmark" size={48} color="#EF4444" />
+                  <Text style={styles.rejectedText}>{t('home.rejected')}</Text>
+                  <TouchableOpacity
+                    style={styles.primaryButton}
+                    onPress={() => {
+                      setShowApprovalModal(false);
+                      setApprovalStatus('idle');
+                      setApprovalReason('');
+                    }}
+                  >
+                    <Text style={styles.primaryButtonText}>{t('common.confirm')}</Text>
+                  </TouchableOpacity>
                 </View>
               )}
             </View>
@@ -477,60 +517,86 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0F172A',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
+  headerLeft: {
+    width: 40,
+  },
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#E2E8F0',
+  },
+  headerRight: {
+    width: 40,
+    alignItems: 'flex-end',
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: 24,
-    paddingTop: 60,
+    padding: 20,
   },
   section: {
-    alignItems: 'center',
+    marginTop: 20,
   },
   logoContainer: {
-    marginBottom: 24,
+    alignItems: 'center',
+    marginBottom: 16,
   },
   logoBox: {
-    width: 80,
-    height: 80,
-    borderRadius: 24,
+    width: 72,
+    height: 72,
+    borderRadius: 20,
     backgroundColor: 'rgba(99, 102, 241, 0.15)',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(99, 102, 241, 0.3)',
   },
   appTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#F8FAFC',
-    marginBottom: 8,
+    color: '#E2E8F0',
+    textAlign: 'center',
+    marginBottom: 4,
   },
   appSubtitle: {
     fontSize: 14,
-    color: '#94A3B8',
+    color: '#64748B',
+    textAlign: 'center',
     marginBottom: 32,
   },
   inputGroup: {
-    width: '100%',
     marginBottom: 16,
   },
   label: {
     fontSize: 14,
+    fontWeight: '500',
     color: '#94A3B8',
     marginBottom: 8,
   },
   input: {
-    width: '100%',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 12,
     backgroundColor: '#1E293B',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: '#E2E8F0',
     borderWidth: 1,
     borderColor: '#334155',
-    color: '#F8FAFC',
-    fontSize: 16,
   },
   charCount: {
     fontSize: 12,
@@ -539,12 +605,11 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   primaryButton: {
-    width: '100%',
-    paddingVertical: 14,
-    borderRadius: 12,
     backgroundColor: '#6366F1',
+    borderRadius: 12,
+    paddingVertical: 14,
     alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: 8,
   },
   primaryButtonText: {
     fontSize: 16,
@@ -555,20 +620,19 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   scanHeader: {
-    width: '100%',
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 16,
   },
   scanIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
   scanText: {
     fontSize: 14,
     color: '#94A3B8',
+    marginLeft: 8,
   },
   refreshButton: {
     padding: 8,
@@ -576,32 +640,35 @@ const styles = StyleSheet.create({
   spinning: {
     transform: [{ rotate: '360deg' }],
   },
-  serverList: {
-    width: '100%',
+  serverListContainer: {
     maxHeight: 300,
   },
+  serverList: {
+    maxHeight: 280,
+  },
   serverCard: {
+    backgroundColor: '#1E293B',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: '#1E293B',
+    justifyContent: 'space-between',
     borderWidth: 1,
     borderColor: '#334155',
-    marginBottom: 12,
   },
   serverInfo: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   serverIcon: {
     width: 44,
     height: 44,
     borderRadius: 12,
     backgroundColor: 'rgba(99, 102, 241, 0.15)',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 12,
   },
   serverDetails: {
@@ -610,35 +677,36 @@ const styles = StyleSheet.create({
   serverName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#F8FAFC',
+    color: '#E2E8F0',
     marginBottom: 4,
   },
   serverMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
   signalBars: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: 2,
+    marginRight: 8,
   },
   signalBar: {
     width: 3,
     borderRadius: 1,
+    marginRight: 2,
   },
   userCount: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: '#64748B',
+    marginRight: 8,
   },
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    backgroundColor: 'rgba(245, 158, 11, 0.15)',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    marginRight: 4,
   },
   badgeApproval: {
     backgroundColor: 'rgba(16, 185, 129, 0.15)',
@@ -646,6 +714,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 10,
     color: '#F59E0B',
+    marginLeft: 4,
   },
   emptyState: {
     alignItems: 'center',
@@ -653,58 +722,77 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 16,
   },
   emptySubtext: {
-    fontSize: 14,
-    color: '#64748B',
+    fontSize: 13,
+    color: '#475569',
     marginTop: 4,
+  },
+  createRoomButton: {
+    backgroundColor: '#6366F1',
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    marginTop: 16,
+    shadowColor: '#6366F1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  createRoomButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+    marginLeft: 8,
   },
   manualButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 16,
+    justifyContent: 'center',
     paddingVertical: 12,
+    marginTop: 12,
   },
   manualButtonText: {
     fontSize: 14,
     color: '#6366F1',
-    fontWeight: '500',
+    marginLeft: 8,
   },
   manualInputContainer: {
-    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 8,
   },
   manualInput: {
-    width: '100%',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+    flex: 1,
     backgroundColor: '#1E293B',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 14,
+    color: '#E2E8F0',
     borderWidth: 1,
     borderColor: '#334155',
-    color: '#F8FAFC',
-    fontSize: 16,
-    marginBottom: 12,
+    marginRight: 8,
   },
   connectButton: {
-    width: '100%',
-    paddingVertical: 14,
-    borderRadius: 12,
     backgroundColor: '#6366F1',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
   },
   connectButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#fff',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'flex-end',
   },
   modalContent: {
@@ -716,14 +804,14 @@ const styles = StyleSheet.create({
   },
   modalHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 16,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#F8FAFC',
+    color: '#E2E8F0',
   },
   modalDescription: {
     fontSize: 14,
@@ -731,50 +819,59 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   passwordInput: {
-    width: '100%',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 12,
     backgroundColor: '#0F172A',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: '#E2E8F0',
     borderWidth: 1,
     borderColor: '#334155',
-    color: '#F8FAFC',
-    fontSize: 16,
     marginBottom: 16,
     textAlign: 'center',
     letterSpacing: 4,
   },
   reasonInput: {
-    width: '100%',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 12,
     backgroundColor: '#0F172A',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 14,
+    color: '#E2E8F0',
     borderWidth: 1,
     borderColor: '#334155',
-    color: '#F8FAFC',
-    fontSize: 16,
     marginBottom: 16,
-    minHeight: 100,
+    minHeight: 80,
     textAlignVertical: 'top',
   },
   waitingContainer: {
     alignItems: 'center',
-    paddingVertical: 32,
-    gap: 16,
+    paddingVertical: 24,
   },
   waitingText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#94A3B8',
+    marginTop: 16,
   },
   grantedContainer: {
     alignItems: 'center',
-    paddingVertical: 32,
-    gap: 16,
+    paddingVertical: 24,
   },
   grantedText: {
     fontSize: 16,
-    color: '#10B981',
     fontWeight: '600',
+    color: '#10B981',
+    marginTop: 16,
+  },
+  rejectedContainer: {
+    alignItems: 'center',
+    paddingVertical: 24,
+  },
+  rejectedText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#EF4444',
+    marginTop: 16,
+    marginBottom: 16,
   },
 });

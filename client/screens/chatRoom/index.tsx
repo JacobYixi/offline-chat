@@ -24,8 +24,10 @@ import { encryptWithSharedKey, decryptWithSharedKey } from '@/utils/crypto';
 import { disguise, undisguise, DISGUISE_OPTIONS } from '@/utils/disguise';
 import type { DisguiseMode } from '@/utils/disguise';
 import type { ChatMessage, ChatUser, SmallGroup, Report, ServerConfig, WsMessage } from '@/utils/types';
+import { useTranslation } from '@/i18n';
 
 export default function ChatRoomScreen() {
+  const { t } = useTranslation();
   const params = useSafeSearchParams<{
     serverId: string;
     serverName: string;
@@ -37,7 +39,7 @@ export default function ChatRoomScreen() {
   const insets = useSafeAreaInsets();
 
   const serverId = (params.serverId as string) || '';
-  const serverName = (params.serverName as string) || '聊天室';
+  const serverName = (params.serverName as string) || t('chat.defaultRoomName');
   const serverIp = (params.serverIp as string) || '';
   const serverPort = (params.serverPort as number) || 9091;
   const nickname = (params.nickname as string) || '匿名';
@@ -194,13 +196,13 @@ export default function ChatRoomScreen() {
           break;
         }
         case 'kicked': {
-          Alert.alert('提示', '你已被踢出聊天室');
+          Alert.alert(t('common.notice'), t('chat.kicked'));
           router.replace('/');
           break;
         }
       }
     },
-    [serverId, serverConfig, router]
+    [serverId, serverConfig, router, t]
   );
 
   const { connected: wsConnected, send } = useWebSocket({
@@ -524,7 +526,7 @@ export default function ChatRoomScreen() {
             style={styles.textInput}
             value={inputText}
             onChangeText={setInputText}
-            placeholder="输入消息..."
+            placeholder={t('chat.inputPlaceholder')}
             placeholderTextColor="#64748B"
             multiline
           />
@@ -558,7 +560,7 @@ export default function ChatRoomScreen() {
           >
             <View style={styles.usersSidebar}>
               <View style={styles.sidebarHeader}>
-                <Text style={styles.sidebarTitle}>在线用户</Text>
+                <Text style={styles.sidebarTitle}>{t('chat.onlineUsers')}</Text>
                 <TouchableOpacity onPress={() => setShowUsers(false)}>
                   <FontAwesome6 name="xmark" size={20} color="#fff" />
                 </TouchableOpacity>

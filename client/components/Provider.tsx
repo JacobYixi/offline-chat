@@ -4,6 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { WebOnlyColorSchemeUpdater } from './ColorSchemeUpdater';
 import { WebOnlyPrettyScrollbar } from './PrettyScrollbar'
 import { HeroUINativeProvider } from '@/heroui';
+import { LanguageProvider } from '@/i18n';
 
 function Provider({ children }: { children: ReactNode }) {
   return <WebOnlyColorSchemeUpdater>
@@ -11,7 +12,9 @@ function Provider({ children }: { children: ReactNode }) {
       <AuthProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <HeroUINativeProvider>
-            {children}
+            <LanguageProvider>
+              {children}
+            </LanguageProvider>
           </HeroUINativeProvider>
         </GestureHandlerRootView>
       </AuthProvider>

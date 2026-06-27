@@ -31,6 +31,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "expo-localization",
       process.env.EXPO_PUBLIC_BACKEND_BASE_URL ? [
         "expo-router",
         {
@@ -41,9 +42,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "imageWidth": 150,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#0F172A"
         }
       ],
       [
