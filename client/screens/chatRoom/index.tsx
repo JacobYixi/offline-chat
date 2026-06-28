@@ -22,7 +22,7 @@ import { getAvatarColor, getMessages, saveMessages, getSettings } from '@/utils/
 import { getOrCreateDeviceId } from '@/utils/deviceIdentity';
 import { encryptWithSharedKey, decryptWithSharedKey } from '@/utils/crypto';
 import { disguise, undisguise, DISGUISE_OPTIONS } from '@/utils/disguise';
-import { getServerState, stopServer } from '@/utils/mobileServer';
+import { getServerState, stopServer, pauseServer, resumeServer } from '@/utils/mobileServer';
 import type { DisguiseMode } from '@/utils/disguise';
 import type { ChatMessage, ChatUser, SmallGroup, Report, ServerConfig, WsMessage } from '@/utils/types';
 import { useTranslation } from '@/i18n';
@@ -69,15 +69,9 @@ export default function ChatRoomScreen() {
   const [selectedMessages, setSelectedMessages] = useState<ChatMessage[]>([]);
   const [isReconnecting, setIsReconnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
-  const [isLocalServerRunning, setIsLocalServerRunning] = useState(false);
+  const [isLocalServerRunning, setIsLocalServerRunning] = useState(() => getServerState().isRunning);
 
   const flatListRef = useRef<FlatList>(null);
-
-  useEffect(() => {
-    // Check if local server is running
-    const serverState = getServerState();
-    setIsLocalServerRunning(serverState.isRunning);
-  }, []);
 
   useEffect(() => {
     const init = async () => {
@@ -479,31 +473,54 @@ export default function ChatRoomScreen() {
               <Text style={styles.menuItemText}>{t('chat.smallGroups')}</Text>
             </TouchableOpacity>
             {isLocalServerRunning && (
-              <TouchableOpacity
-                onPress={() => {
-                  Alert.alert(
-                    t('common.notice'),
-                    '确定要关闭房间吗？所有用户将被断开连接。',
-                    [
-                      { text: t('common.cancel'), style: 'cancel' },
-                      {
-                        text: '确定关闭',
-                        style: 'destructive',
-                        onPress: async () => {
-                          await stopServer();
-                          setIsLocalServerRunning(false);
-                          router.back();
+              <>
+                <TouchableOpacity
+                  onPress={() => {
+                    const state = getServerState();
+                    if (state.isPaused) {
+                      resumeServer();
+                    } else {
+                      pauseServer();
+                    }
+                    setShowMoreMenu(false);
+                  }}
+                  style={styles.menuItem}
+                >
+                  <FontAwesome6
+                    name={getServerState().isPaused ? 'play' : 'pause'}
+                    size={16}
+                    color="#F59E0B"
+                  />
+                  <Text style={[styles.menuItemText, { color: '#F59E0B' }]}>
+                    {getServerState().isPaused ? '恢复服务' : '暂停服务'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    Alert.alert(
+                      t('common.notice'),
+                      '确定要关闭房间吗？所有用户将被断开连接，所有数据将被清除。',
+                      [
+                        { text: t('common.cancel'), style: 'cancel' },
+                        {
+                          text: '确定关闭',
+                          style: 'destructive',
+                          onPress: async () => {
+                            await stopServer();
+                            setIsLocalServerRunning(false);
+                            router.back();
+                          },
                         },
-                      },
-                    ]
-                  );
-                  setShowMoreMenu(false);
-                }}
-                style={styles.menuItem}
-              >
-                <FontAwesome6 name="power-off" size={16} color="#EF4444" />
-                <Text style={[styles.menuItemText, { color: '#EF4444' }]}>关闭房间</Text>
-              </TouchableOpacity>
+                      ]
+                    );
+                    setShowMoreMenu(false);
+                  }}
+                  style={styles.menuItem}
+                >
+                  <FontAwesome6 name="power-off" size={16} color="#EF4444" />
+                  <Text style={[styles.menuItemText, { color: '#EF4444' }]}>关闭房间</Text>
+                </TouchableOpacity>
+              </>
             )}
           </View>
         )}
