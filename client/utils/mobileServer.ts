@@ -650,14 +650,29 @@ export async function stopServer(): Promise<void> {
 }
 
 /**
- * 暂停服务器（停止接受新连接，但保持现有连接）
+ * 暂停服务器（断开所有连接，但保留状态数据）
+ * 恢复服务后，之前审批通过的用户可以重新加入
  */
 export function pauseServer(): void {
   if (!state.isRunning || !server) {
     return;
   }
+  
+  // 断开所有客户端连接
+  state.clients.forEach(client => {
+    try {
+      client.destroy();
+    } catch (e) {
+      console.error('Error destroying client:', e);
+    }
+  });
+  
+  // 清空连接状态，但保留审批、昵称、消息等数据
+  state.clients.clear();
+  state.users.clear();
+  
   state.isPaused = true;
-  console.log('Server paused - not accepting new connections');
+  console.log('Server paused - all clients disconnected, state preserved');
   emit('server:paused', {});
 }
 
