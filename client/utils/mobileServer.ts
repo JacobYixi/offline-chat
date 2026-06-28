@@ -34,6 +34,7 @@ interface ClientConnection {
 // 服务器状态
 interface ServerState {
   isRunning: boolean;
+  isPaused: boolean;
   port: number;
   serverId: string;
   config: ServerConfig;
@@ -51,6 +52,7 @@ interface ServerState {
 let server: any = null;
 const state: ServerState = {
   isRunning: false,
+  isPaused: false,
   port: DEFAULT_PORT,
   serverId: generateUUID(),
   config: {
@@ -612,7 +614,7 @@ export async function startServer(config: Partial<ServerConfig>): Promise<{ succ
 }
 
 /**
- * 停止服务器
+ * 停止服务器（关闭 = 删除所有数据）
  */
 export async function stopServer(): Promise<void> {
   if (!state.isRunning || !server) {
@@ -632,9 +634,15 @@ export async function stopServer(): Promise<void> {
 
     // 关闭服务器
     server.close(() => {
+      // 清除所有状态数据（关闭 = 删除）
       state.isRunning = false;
+      state.clients.clear();
+      state.users.clear();
+      state.messages.length = 0;
+      state.pendingApprovals.clear();
+      state.deviceNicknames.clear();
       server = null;
-      console.log('Server stopped');
+      console.log('Server stopped and all data cleared');
       emit('server:stopped', {});
       resolve();
     });
@@ -642,11 +650,36 @@ export async function stopServer(): Promise<void> {
 }
 
 /**
+ * 暂停服务器（停止接受新连接，但保持现有连接）
+ */
+export function pauseServer(): void {
+  if (!state.isRunning || !server) {
+    return;
+  }
+  state.isPaused = true;
+  console.log('Server paused - not accepting new connections');
+  emit('server:paused', {});
+}
+
+/**
+ * 恢复服务器（重新开始接受新连接）
+ */
+export function resumeServer(): void {
+  if (!state.isRunning || !server) {
+    return;
+  }
+  state.isPaused = false;
+  console.log('Server resumed - accepting new connections');
+  emit('server:resumed', {});
+}
+
+/**
  * 获取服务器状态
  */
-export function getServerState(): { isRunning: boolean; port: number; serverId: string; config: ServerConfig } {
+export function getServerState(): { isRunning: boolean; isPaused: boolean; port: number; serverId: string; config: ServerConfig } {
   return {
     isRunning: state.isRunning,
+    isPaused: state.isPaused,
     port: state.port,
     serverId: state.serverId,
     config: state.config,
