@@ -1,45 +1,59 @@
-# 修复计划
+# 修复"创建并启动房间"按钮无响应问题
 
 ## 概述
-修复 OfflineChat 移动端应用的两个问题：
-1. 语言选择页面和创建房间页面空白（className 样式不生效）
-2. 将应用固定为深色模式
+修复 OfflineChat 应用中"创建并启动房间"按钮点击后无反应的问题。
+
+## 问题分析
+
+### 根本原因
+`createRoom/index.tsx` 中存在**竞态条件**：
+
+```javascript
+// 当前代码流程（有问题）
+const result = await startServer({...});  // 1. 立即返回 success
+
+if (result.success) {
+  // 2. 然后才添加监听器
+  const unsubscribe = addServerListener((event, data) => {
+    if (event === 'server:started') { ... }
+  });
+}
+```
+
+而 `mobileServer.ts` 中：
+```javascript
+server.listen(state.port, HOST);  // 异步触发 listening 事件
+return { success: true, port: state.port };  // 立即返回
+```
+
+**问题**：如果服务器启动非常快（在 `addServerListener` 调用之前），`server:started` 事件会被错过，导致页面卡在加载状态。
 
 ## 技术方案
 
 | 维度 | 选择 | 理由 |
 |------|------|------|
-| 样式方案 | StyleSheet 内联样式 | 与首页保持一致，避免 NativeWind/Uniwind 兼容性问题 |
-| 主题模式 | 固定深色 | 修改 ColorSchemeUpdater.tsx 中的 DEFAULT_THEME |
+| 修复策略 | 先注册监听器再启动服务器 | 避免竞态条件 |
+| 影响范围 | 仅前端 | 后端逻辑无需修改 |
 
 ## 功能模块
 
-### 1. 主题配置
-- 文件：`client/components/ColorSchemeUpdater.tsx`
-- 修改：`DEFAULT_THEME` 从 `'system'` 改为 `'dark'`
-
-### 2. 语言页面样式修复
-- 文件：`client/screens/language/index.tsx`
-- 修改：将所有 `className` 替换为 `StyleSheet` 内联样式
-
-### 3. 创建房间页面样式修复
-- 文件：`client/screens/createRoom/index.tsx`
-- 修改：将所有 `className` 替换为 `StyleSheet` 内联样式
+### 修复模块
+- **职责**：修复按钮点击后的事件监听时序问题
+- **要点**：
+  1. 在调用 `startServer` 之前先注册 `addServerListener`
+  2. 确保能捕获到 `server:started` 和 `server:error` 事件
+  3. 添加超时机制，防止无限等待
 
 ## 是否有原型设计
 否
 
 ## 实施步骤
 
-1. **修改主题配置** — 将 DEFAULT_THEME 改为 'dark'
-   - 涉及文件：`client/components/ColorSchemeUpdater.tsx`
-
-2. **修复语言页面样式** — 将 className 改为 StyleSheet
-   - 涉及文件：`client/screens/language/index.tsx`
-
-3. **修复创建房间页面样式** — 将 className 改为 StyleSheet
+1. **修复竞态条件** — 调整事件监听器注册时机，确保在 `startServer` 调用前注册
    - 涉及文件：`client/screens/createRoom/index.tsx`
 
-4. **验证修复效果** — 运行静态检查，确认无报错
-   - 验证：静态检查通过
-# sync
+2. **添加超时保护** — 为服务器启动添加超时检测，防止无限等待
+   - 涉及文件：`client/screens/createRoom/index.tsx`
+
+3. **验证修复** — 检查代码逻辑，确保事件监听时序正确
+   - 涉及文件：`client/screens/createRoom/index.tsx`
